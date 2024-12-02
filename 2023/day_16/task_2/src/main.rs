@@ -65,6 +65,21 @@ fn read_tiles(source_file: &str) -> Vec<Vec<Tile>> {
     tiles
 }
 
+fn reset_tiles(tiles: &mut Vec<Vec<Tile>>) {
+    for row in tiles {
+        for tile in row {
+            tile.history = vec![];
+        }
+    }
+}
+
+fn get_grid_size(tiles: &Vec<Vec<Tile>>) -> Position {
+    let row = tiles.len();
+    let column = tiles.first().unwrap().len();
+
+    Position { row, column }
+}
+
 fn update_beams(beams: &mut Vec<Beam>, tiles: &mut Vec<Vec<Tile>>) {
     let mut updated_beams: Vec<Beam> = vec![];
     for beam in &mut *beams {
@@ -128,13 +143,13 @@ fn evaluate_next_beam_position(beam: &Beam, max_row: usize, max_col: usize) -> O
 }
 
 fn evaluate_next_beam_state(beam: Beam, tiles: &Vec<Vec<Tile>>) -> Vec<Beam> {
-    let max_row = tiles.len();
-    let max_col = tiles.first().unwrap().len();
+    let grid_size = get_grid_size(tiles);
 
-    let next_position: Position = match evaluate_next_beam_position(&beam, max_row, max_col) {
-        Some(value) => value,
-        None => return vec![],
-    };
+    let next_position: Position =
+        match evaluate_next_beam_position(&beam, grid_size.row, grid_size.column) {
+            Some(value) => value,
+            None => return vec![],
+        };
 
     match tiles[next_position.row][next_position.column].content {
         TileContent::Empty => vec![Beam {
@@ -239,21 +254,77 @@ fn count_energized_tiles(tiles: &Vec<Vec<Tile>>) -> u32 {
     energized_tiles
 }
 
-fn main() {
-    let mut tiles = read_tiles("../input.txt");
+fn get_initial_position(direction: &Direction, offset: usize, tiles: &Vec<Vec<Tile>>) -> Position {
+    let grid_size = get_grid_size(&tiles);
 
+    match direction {
+        Direction::Down => Position {
+            row: 0,
+            column: offset,
+        },
+        Direction::Up => Position {
+            row: grid_size.row - 1,
+            column: offset,
+        },
+        Direction::Right => Position {
+            row: offset,
+            column: 0,
+        },
+        Direction::Left => Position {
+            row: 0,
+            column: grid_size.column - 1,
+        },
+    }
+}
+
+fn evaluate_energization_state(
+    direction: Direction,
+    offset: usize,
+    tiles: &mut Vec<Vec<Tile>>,
+) -> u32 {
     let mut beams: Vec<Beam> = vec![Beam {
-        position: Position { row: 0, column: 0 },
-        direction: Direction::Right,
+        position: get_initial_position(&direction, offset, &tiles),
+        direction,
         is_init: true,
     }];
 
     while beams.len() > 0 {
-        update_beams(&mut beams, &mut tiles);
+        update_beams(&mut beams, tiles);
     }
 
-    let energized_tiles = count_energized_tiles(&tiles);
-    println!("There are {} energized tiles", energized_tiles);
+    count_energized_tiles(&tiles)
+}
+
+fn main() {
+    let mut tiles = read_tiles("../input.txt");
+    let grid_size = get_grid_size(&tiles);
+    let mut max_energized_tiles = 0;
+
+    for direction in [Direction::Right, Direction::Left] {
+        for offset in 0..grid_size.row {
+            reset_tiles(&mut tiles);
+            let energized_tiles =
+                evaluate_energization_state(direction.clone(), offset, &mut tiles);
+            if energized_tiles > max_energized_tiles {
+                max_energized_tiles = energized_tiles;
+            }
+        }
+    }
+    for direction in [Direction::Down, Direction::Up] {
+        for offset in 0..grid_size.column {
+            reset_tiles(&mut tiles);
+            let energized_tiles =
+                evaluate_energization_state(direction.clone(), offset, &mut tiles);
+            if energized_tiles > max_energized_tiles {
+                max_energized_tiles = energized_tiles;
+            }
+        }
+    }
+
+    println!(
+        "The maximum number of energized tiles is {}",
+        max_energized_tiles
+    );
 }
 
 #[cfg(test)]
@@ -261,7 +332,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_solves_the_example() {
+    fn it_solves_the_first_example() {
         let mut tiles = read_tiles("../test_input.txt");
         let mut beams: Vec<Beam> = vec![Beam {
             position: Position { row: 0, column: 0 },
@@ -273,6 +344,53 @@ mod tests {
         }
         let actual_tiles = count_energized_tiles(&tiles);
         let expected_tiles = 46;
+        assert_eq!(actual_tiles, expected_tiles);
+    }
+
+    #[test]
+    fn it_resets_all_tiles() {
+        let mut tiles = read_tiles("../test_input.txt");
+        let mut beams: Vec<Beam> = vec![Beam {
+            position: Position { row: 0, column: 0 },
+            direction: Direction::Right,
+            is_init: true,
+        }];
+        while beams.len() > 0 {
+            update_beams(&mut beams, &mut tiles);
+        }
+        reset_tiles(&mut tiles);
+        let actual_tiles = count_energized_tiles(&tiles);
+        let expected_tiles = 0;
+        assert_eq!(actual_tiles, expected_tiles);
+    }
+
+    #[test]
+    fn it_solves_the_second_example() {
+        let mut tiles = read_tiles("../test_input.txt");
+        let grid_size = get_grid_size(&tiles);
+        let mut max_energized_tiles = 0;
+        for direction in [Direction::Right, Direction::Left] {
+            for offset in 0..grid_size.row {
+                reset_tiles(&mut tiles);
+                let energized_tiles =
+                    evaluate_energization_state(direction.clone(), offset, &mut tiles);
+                if energized_tiles > max_energized_tiles {
+                    max_energized_tiles = energized_tiles;
+                }
+            }
+        }
+        for direction in [Direction::Down, Direction::Up] {
+            for offset in 0..grid_size.column {
+                reset_tiles(&mut tiles);
+                let energized_tiles =
+                    evaluate_energization_state(direction.clone(), offset, &mut tiles);
+                if energized_tiles > max_energized_tiles {
+                    max_energized_tiles = energized_tiles;
+                }
+            }
+        }
+        let actual_tiles = max_energized_tiles;
+        let expected_tiles = 51;
         assert_eq!(actual_tiles, expected_tiles);
     }
 }
