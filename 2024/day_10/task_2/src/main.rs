@@ -63,7 +63,6 @@ impl Direction {
 struct Node {
     position: Position,
     height: u8,
-    visited: bool,
     neighbours: Vec<usize>,
 }
 
@@ -72,7 +71,6 @@ impl Node {
         Self {
             position,
             height,
-            visited: false,
             neighbours: vec![],
         }
     }
