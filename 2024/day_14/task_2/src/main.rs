@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use rayon::prelude::*;
 use std::fs;
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
@@ -14,11 +14,13 @@ struct Robot {
 }
 
 impl Robot {
-    fn move_n(&mut self, n: i32, boundary: &Position) {
-        self.position.x =
-            ((self.position.x + n * self.velocity.x) % boundary.x + boundary.x) % boundary.x;
-        self.position.y =
-            ((self.position.y + n * self.velocity.y) % boundary.y + boundary.y) % boundary.y;
+    fn move_n(&self, n: i32, boundary: &Position) -> Robot {
+        let x = ((self.position.x + n * self.velocity.x) % boundary.x + boundary.x) % boundary.x;
+        let y = ((self.position.y + n * self.velocity.y) % boundary.y + boundary.y) % boundary.y;
+        Robot {
+            position: Position { x, y },
+            velocity: self.velocity.clone(),
+        }
     }
 }
 
@@ -44,20 +46,70 @@ fn read_robots(input_file: &str) -> Vec<Robot> {
         .collect()
 }
 
-fn has_overlap(robots: &[Robot], _boundary: &Position) -> bool {
-    let mut position_counts = HashMap::new();
+fn calculate_safety_factor(robots: &[Robot], boundary: &Position) -> u64 {
+    let center = Position {
+        x: boundary.x / 2,
+        y: boundary.y / 2,
+    };
+    robots
+        .iter()
+        .fold([0, 0, 0, 0], |mut acc, robot| {
+            if robot.position.x < center.x && robot.position.y < center.y {
+                acc[0] += 1;
+            } else if robot.position.x > center.x && robot.position.y < center.y {
+                acc[1] += 1;
+            } else if robot.position.x < center.x && robot.position.y > center.y {
+                acc[2] += 1;
+            } else if robot.position.x > center.x && robot.position.y > center.y {
+                acc[3] += 1;
+            }
+            acc
+        })
+        .iter()
+        .product()
+}
 
-    for robot in robots {
-        *position_counts.entry(&robot.position).or_insert(0) += 1;
+fn calculate_standard_deviation(data: &[u64]) -> f64 {
+    let data_iter = data.iter().map(|x| *x as f64);
+
+    let n = data_iter.clone().count() as f64;
+    if n == 0.0 {
+        return 0.0;
     }
+    let mean = data_iter.clone().sum::<f64>() / n;
+    let variance = data_iter.map(|x: f64| (x - mean).powi(2)).sum::<f64>() / n;
 
-    position_counts.values().any(|&count| count > 1)
+    variance.sqrt()
+}
+
+fn move_all_robots(robots: &[Robot], time: usize, boundary: &Position) -> Vec<Robot> {
+    robots
+        .iter()
+        .map(|robot| robot.move_n(time as i32, &boundary))
+        .collect::<Vec<Robot>>()
+}
+
+fn find_anomalies(safety_scores: &[u64], tolerance: f64) -> Vec<usize> {
+    let mean = safety_scores.iter().sum::<u64>() as f64 / safety_scores.len() as f64;
+    let std_dev = calculate_standard_deviation(&safety_scores);
+
+    safety_scores
+        .iter()
+        .enumerate()
+        .filter_map(|(t, safety_score)| {
+            if (*safety_score as f64 - mean).abs() > tolerance * std_dev {
+                Some(t)
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 fn print_robots(robots: &[Robot], boundary: &Position) {
-    (0..boundary.x).for_each(|x| {
-        let row: String = (0..boundary.y)
-            .map(|y| {
+    (0..boundary.y).for_each(|y| {
+        let row: String = (0..boundary.x)
+            .map(|x| {
                 let search_position = Position { x, y };
                 let robots_found = robots
                     .iter()
@@ -76,23 +128,41 @@ fn print_robots(robots: &[Robot], boundary: &Position) {
 }
 
 fn main() {
-    let mut robots = read_robots("../input.txt");
+    let robots = read_robots("../input.txt");
     let boundary = Position { x: 101, y: 103 };
 
-    let mut time = 0;
+    let tolerance = 9.5; // Number of standard deviations from the mean
 
-    loop {
-        if !has_overlap(&robots, &boundary) {
-            break;
+    let mut safety_scores: Vec<u64> = (0..1000)
+        .into_par_iter()
+        .map(|t| calculate_safety_factor(&move_all_robots(&robots, t, &boundary), &boundary))
+        .collect();
+    let mut anomalies = find_anomalies(&safety_scores, tolerance);
+
+    while anomalies.len() == 0 {
+        if safety_scores.len() > 100000 {
+            println!("The easter egg was not found! Try reducing the tolerance value.");
+            return;
         }
 
-        robots
-            .iter_mut()
-            .for_each(|robot| robot.move_n(1, &boundary));
-        time += 1;
+        let mut next_safety_scores: Vec<u64> = (safety_scores.len()..safety_scores.len() + 1000)
+            .into_par_iter()
+            .map(|t| calculate_safety_factor(&move_all_robots(&robots, t, &boundary), &boundary))
+            .collect();
+
+        safety_scores.append(&mut next_safety_scores);
+
+        anomalies = find_anomalies(&safety_scores, tolerance);
     }
 
-    print_robots(&robots, &boundary);
+    let t = anomalies.first().unwrap();
+    let tree_formation = robots
+        .iter()
+        .map(|robot| robot.move_n(*t as i32, &boundary))
+        .collect::<Vec<Robot>>();
+
+    print_robots(&tree_formation, &boundary);
     println!();
-    println!("Easter egg found after {} iterations", time);
+    println!("Easter egg found after {} seconds", t);
+    println!("(If the image displayed is not a christmas tree, try increasing the tolerance)");
 }
