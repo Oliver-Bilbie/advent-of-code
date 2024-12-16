@@ -11,7 +11,7 @@ where
     pub weight: i64,
 }
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Destination<NodeId>
 where
     NodeId: Eq + Hash + Clone,
@@ -20,7 +20,7 @@ where
     pub weight: i64,
 }
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Node<NodeId>
 where
     NodeId: Eq + Hash + Clone,
@@ -47,6 +47,10 @@ where
         Graph {
             nodes: HashMap::new(),
         }
+    }
+
+    pub fn len(&self) -> usize {
+        self.nodes.len()
     }
 
     pub fn add_node(&mut self, id: NodeId) {
@@ -87,5 +91,51 @@ where
                 weight: edge.weight,
             })
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_adds_an_edge() {
+        let mut graph = Graph::<u8>::new();
+        assert_eq!(graph.len(), 0);
+
+        graph.add_edge(Edge {
+            source: 1,
+            destination: 2,
+            weight: 10,
+        });
+        assert_eq!(graph.len(), 2);
+
+        let source_node = graph.get_node(&1);
+        assert_eq!(
+            source_node,
+            Some(&Node::<u8> {
+                min_distance: None,
+                visited: false,
+                destinations: vec![Destination {
+                    node: 2,
+                    weight: 10
+                }],
+                previous_location: vec![],
+            })
+        );
+
+        let destination_node = graph.get_node(&2);
+        assert_eq!(
+            destination_node,
+            Some(&Node::<u8> {
+                min_distance: None,
+                visited: false,
+                destinations: vec![],
+                previous_location: vec![],
+            })
+        );
+
+        let invalid_node = graph.get_node(&3);
+        assert_eq!(invalid_node, None)
     }
 }
