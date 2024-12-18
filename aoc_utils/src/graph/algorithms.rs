@@ -105,6 +105,61 @@ where
         Ok(())
     }
 
+    pub fn dfs(&mut self, start_node: NodeId) -> Result<(), &str>
+    where
+        NodeId: Eq + Hash + Clone,
+    {
+        // Initialize start node
+        match self.get_mut_node(&start_node) {
+            Some(node) => {
+                node.min_distance = Some(0);
+            }
+            None => return Err("The start node does not exist"),
+        };
+
+        let mut stack = Vec::new();
+        stack.push((start_node.clone(), 0));
+
+        while let Some((node_id, current_distance)) = stack.pop() {
+            // Skip if the node is already visited
+            if self.get_node(&node_id).unwrap().visited {
+                continue;
+            }
+
+            // Visit the node and read its connected edges
+            let destinations = {
+                let node = self.get_mut_node(&node_id).unwrap();
+                node.visited = true;
+                node.destinations.clone()
+            };
+
+            // Update distances for all neighbors
+            for destination in destinations {
+                let neighbor = self.get_mut_node(&destination.node).unwrap();
+                if !neighbor.visited {
+                    let new_distance = current_distance + destination.weight as u128;
+                    match neighbor.min_distance {
+                        Some(current_distance) => {
+                            if new_distance < current_distance {
+                                neighbor.min_distance = Some(new_distance);
+                                neighbor.previous_location = vec![node_id.clone()];
+                            } else if new_distance == current_distance {
+                                neighbor.previous_location.push(node_id.clone());
+                            }
+                        }
+                        None => {
+                            neighbor.min_distance = Some(new_distance);
+                            neighbor.previous_location = vec![node_id.clone()];
+                        }
+                    }
+                    stack.push((destination.node, new_distance));
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     pub fn get_path_nodes(&self, finish: &NodeId) -> Option<Vec<NodeId>> {
         let mut route: Vec<NodeId> = vec![finish.clone()];
         let next_tiles = &self.get_node(&finish)?.previous_location;

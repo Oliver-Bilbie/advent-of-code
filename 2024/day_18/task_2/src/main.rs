@@ -10,7 +10,7 @@ fn find_minimum_distance(graph: &mut Graph<Position>, boundary: &Position) -> Op
     let start = Position { row: 0, column: 0 };
     let finish = boundary - Position { row: 1, column: 1 };
 
-    graph.dijkstra(start).ok()?;
+    graph.dfs(start).ok()?;
 
     graph.get_node_distance(&finish)
 }
