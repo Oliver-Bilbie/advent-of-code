@@ -3,7 +3,6 @@ use aoc_utils::{
     graph::graph::{Edge, Graph},
     position::*,
 };
-use std::collections::HashSet;
 use std::fs;
 
 fn find_minimum_distance(graph: &mut Graph<Position>, boundary: &Position) -> Option<u128> {
@@ -15,20 +14,8 @@ fn find_minimum_distance(graph: &mut Graph<Position>, boundary: &Position) -> Op
     graph.get_node_distance(&finish)
 }
 
-fn build_graph(input_str: &str, corrupted_bytes: usize, boundary: &Position) -> Graph<Position> {
+fn build_graph(corrupted_spaces: &[Position], boundary: &Position) -> Graph<Position> {
     let mut graph = Graph::new();
-
-    let corrupted_spaces: HashSet<Position> = input_str
-        .lines()
-        .take(corrupted_bytes)
-        .map(|xy_str| {
-            let (column, row) = xy_str.split_once(',').unwrap();
-            Position {
-                row: row.parse::<usize>().unwrap(),
-                column: column.parse::<usize>().unwrap(),
-            }
-        })
-        .collect();
 
     (0..boundary.row).into_iter().for_each(|row| {
         (0..boundary.column).into_iter().for_each(|column| {
@@ -58,16 +45,35 @@ fn build_graph(input_str: &str, corrupted_bytes: usize, boundary: &Position) -> 
 }
 
 fn find_blocking_byte<'a>(input_str: &'a str, boundary: &Position) -> &'a str {
-    let mut corrupted_bytes = 1;
+    let corrupted_spaces: Vec<Position> = input_str
+        .lines()
+        .map(|xy_str| {
+            let (column, row) = xy_str.split_once(',').unwrap();
+            Position {
+                row: row.parse::<usize>().unwrap(),
+                column: column.parse::<usize>().unwrap(),
+            }
+        })
+        .collect();
+
+    let mut num_bytes_corrupted = 1;
     loop {
-        let mut graph = build_graph(input_str, corrupted_bytes, boundary);
+        let mut graph = build_graph(&corrupted_spaces[0..num_bytes_corrupted], boundary);
         if find_minimum_distance(&mut graph, &boundary).is_none() {
             break;
         }
-        corrupted_bytes += 1;
+
+        // Find the next byte which appears in the current path
+        let path = graph
+            .get_path_nodes(&(boundary - Position { row: 1, column: 1 }))
+            .unwrap();
+        num_bytes_corrupted = (num_bytes_corrupted + 1..corrupted_spaces.len())
+            .into_iter()
+            .find(|&idx| path.contains(&corrupted_spaces[idx]))
+            .unwrap();
     }
 
-    input_str.lines().nth(corrupted_bytes - 1).unwrap()
+    input_str.lines().nth(num_bytes_corrupted - 1).unwrap()
 }
 
 fn main() {
