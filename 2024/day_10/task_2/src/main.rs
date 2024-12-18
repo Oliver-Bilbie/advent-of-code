@@ -1,63 +1,5 @@
+use aoc_utils::{direction::*, position::*};
 use std::fs;
-use std::ops::Add;
-
-#[derive(Eq, PartialEq, Clone, Hash, Debug)]
-struct Position {
-    row: i16,
-    column: i16,
-}
-
-impl Add for Position {
-    type Output = Position;
-
-    fn add(self, other: Position) -> Position {
-        Position {
-            row: self.row + other.row,
-            column: self.column + other.column,
-        }
-    }
-}
-
-impl Position {
-    pub fn from_usize(row: usize, column: usize) -> Self {
-        Self {
-            row: row as i16,
-            column: column as i16,
-        }
-    }
-}
-
-#[derive(PartialEq, Clone, Debug)]
-enum Direction {
-    North,
-    South,
-    West,
-    East,
-}
-
-impl Direction {
-    fn travel(&self, position: &Position, boundary: &Position) -> Option<Position> {
-        match self {
-            Direction::North if position.row > 0 => Some(Position {
-                row: position.row - 1,
-                column: position.column,
-            }),
-            Direction::East if position.column + 1 < boundary.column => Some(Position {
-                row: position.row,
-                column: position.column + 1,
-            }),
-            Direction::South if position.row + 1 < boundary.row => Some(Position {
-                row: position.row + 1,
-                column: position.column,
-            }),
-            Direction::West if position.column > 0 => Some(Position {
-                row: position.row,
-                column: position.column - 1,
-            }),
-            _ => None,
-        }
-    }
-}
 
 #[derive(Clone)]
 struct Node {
@@ -110,10 +52,7 @@ fn read_heights(input_file: &str) -> Map {
         .for_each(|(row, line)| {
             let mut row_indices = vec![];
             line.chars().enumerate().for_each(|(column, c)| {
-                let node = Node::new(
-                    Position::from_usize(row, column),
-                    c.to_digit(10).unwrap() as u8,
-                );
+                let node = Node::new(Position { row, column }, c.to_digit(10).unwrap() as u8);
                 let index = nodes.len();
                 nodes.push(node);
                 row_indices.push(index);
@@ -121,7 +60,10 @@ fn read_heights(input_file: &str) -> Map {
             tiles.push(row_indices);
         });
 
-    let boundary = Position::from_usize(tiles.len(), tiles.iter().next().unwrap().len());
+    let boundary = Position {
+        row: tiles.len(),
+        column: tiles.iter().next().unwrap().len(),
+    };
     Map {
         tiles,
         nodes,
@@ -135,12 +77,12 @@ fn find_neighbours(map: &mut Map) {
         let mut neighbours = vec![];
 
         for direction in [
-            Direction::North,
-            Direction::East,
-            Direction::South,
-            Direction::West,
+            Direction::Up,
+            Direction::Right,
+            Direction::Down,
+            Direction::Left,
         ] {
-            if let Some(position) = direction.travel(&node.position, &map.boundary) {
+            if let Some(position) = direction.travel_with_bounds(&node.position, &map.boundary) {
                 if let Some(neighbour_index) = map.get_node_index(&position) {
                     let neighbour = &map.nodes[neighbour_index];
                     if neighbour.height == node.height + 1 {
