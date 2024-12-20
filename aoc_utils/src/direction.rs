@@ -99,6 +99,49 @@ impl Direction {
                 % boundary.column,
         }
     }
+
+    pub fn travel_n<T>(&self, position: &Position<T>, n: usize) -> Position<T>
+    where
+        T: Copy + Sub<Output = T> + Add<Output = T> + Integer + One,
+    {
+        let mut new_position = position.clone();
+        for _ in 0..n {
+            new_position = self.travel(&new_position);
+        }
+        new_position
+    }
+
+    pub fn travel_n_with_bounds<T>(
+        &self,
+        position: &Position<T>,
+        boundary: &Position<T>,
+        n: usize,
+    ) -> Option<Position<T>>
+    where
+        T: Copy + Sub<Output = T> + Add<Output = T> + PartialOrd + Integer + One + Zero,
+    {
+        let mut new_position = position.clone();
+        for _ in 0..n {
+            new_position = self.travel_with_bounds(&new_position, &boundary)?;
+        }
+        Some(new_position)
+    }
+
+    pub fn travel_n_with_wrap<T>(
+        &self,
+        position: &Position<T>,
+        boundary: &Position<T>,
+        n: usize,
+    ) -> Position<T>
+    where
+        T: Copy + Sub<Output = T> + Add<Output = T> + Rem<Output = T> + Integer + One + PartialOrd,
+    {
+        let mut new_position = position.clone();
+        for _ in 0..n {
+            new_position = self.travel_with_wrap(&new_position, &boundary);
+        }
+        new_position
+    }
 }
 
 #[cfg(test)]
