@@ -21,6 +21,25 @@ impl Position<i16> {
     }
 }
 
+impl<T> Position<T> {
+    pub fn manhattan_distance(a: &Position<T>, b: &Position<T>) -> T
+    where
+        T: Add<Output = T> + Sub<Output = T> + Copy + Ord,
+    {
+        let row_diff = if a.row > b.row {
+            a.row - b.row
+        } else {
+            b.row - a.row
+        };
+        let col_diff = if a.column > b.column {
+            a.column - b.column
+        } else {
+            b.column - a.column
+        };
+        row_diff + col_diff
+    }
+}
+
 macro_rules! impl_ops {
     ($trait:ident, $fn:ident, $op:tt) => {
         // Position <op> Position
