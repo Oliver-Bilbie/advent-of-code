@@ -1,0 +1,12 @@
+[package]
+name = "wasm_run"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2.100"
+solution_2024_1_1 = { path = "../2024/day_01/task_1" }
+solution_2024_1_2 = { path = "../2024/day_01/task_2" }

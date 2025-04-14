@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "frontend",
+  "2024/day_01/task_1",
+  "2024/day_01/task_2",
+]
