@@ -8,5 +8,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen = "0.2.100"
-solution_2024_1_1 = { path = "../2024/day_01/task_1" }
-solution_2024_1_2 = { path = "../2024/day_01/task_2" }
+
+# DO NOT PLACE ANY BLOCKS BENEATH DEPENDENCIES
+# (This will break the auto-generation)
