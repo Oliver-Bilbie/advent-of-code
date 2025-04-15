@@ -11,3 +11,6 @@ go.work
 **/build
 **/Cargo.lock
 Cargo.toml
+frontend/terraform/.terraform
+frontend/terraform/.terraform.lock.hcl
+frontend/terraform/terraform.tfvars
