@@ -16,14 +16,6 @@ h1 {
   text-align: center;
 }
 
-.controls {
-  display: flex;
-  gap: 1em;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 1em;
-}
-
 label {
   color: #ffff66;
 }
@@ -55,11 +47,24 @@ button:hover {
   background-color: #444;
 }
 
-pre#output {
+#output-part-1,
+#output-part-2 {
   white-space: pre-wrap;
   background: #111122;
   padding: 1em;
   margin-top: 1em;
   border-left: 4px solid #ffff66;
   color: #e0e0e0;
+}
+
+#controls-container {
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1em;
+}
+
+#output-container {
+  visibility: hidden;
 }

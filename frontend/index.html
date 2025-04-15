@@ -2,14 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>My Advent of Code Runner</title>
+    <title>AoC Solver</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main>
-      <h1>🎄 Advent of Code Runner</h1>
+      <h1>🎄 Advent of Code Solver</h1>
 
-      <div class="controls">
+      <h3>Select a puzzle</h3>
+      <div id="controls-container">
         <label for="year">Year:</label>
         <select id="year">
           <option selected>2024</option>
@@ -45,14 +46,18 @@
         </select>
       </div>
 
-      <textarea
-        id="input"
-        placeholder="Paste your puzzle input here..."
-      ></textarea>
+      <h3>Paste your puzzle input here</h3>
+      <textarea id="input"></textarea>
 
       <button id="run-btn">▶ Run</button>
 
-      <pre id="output"></pre>
+      <div id="output-container">
+        <h3>Solutions</h3>
+        <h4>Part 1</h4>
+        <pre id="output-part-1"></pre>
+        <h4>Part 2</h4>
+        <pre id="output-part-2"></pre>
+      </div>
     </main>
 
     <script type="module" src="main.js"></script>
