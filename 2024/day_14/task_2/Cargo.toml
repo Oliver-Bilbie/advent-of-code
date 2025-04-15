@@ -6,3 +6,6 @@ edition = "2024"
 [lib]
 name = "solution_2024_14_2"
 path = "src/lib.rs"
+
+[dependencies]
+rayon = "1.10.0"
