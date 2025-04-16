@@ -12,25 +12,29 @@ async function start() {
     document.getElementById("output-part-2").textContent = "Queued";
     document.getElementById("output-container").style.visibility = "visible";
 
-    try {
-      const result = run(year, day, 1, input);
-      document.getElementById("output-part-1").textContent = result;
-    } catch (e) {
-      console.error(e);
-      document.getElementById("output-part-1").textContent =
-        `An error has occurred while running the solution; please check your input.\n${e}`;
-    }
+    setTimeout(() => {
+      try {
+        const result = run(year, day, 1, input);
+        document.getElementById("output-part-1").textContent = result;
+      } catch (e) {
+        console.error(e);
+        document.getElementById("output-part-1").textContent =
+          `An error has occurred while running the solution; please check your input.\n${e}`;
+      }
 
-    document.getElementById("output-part-2").textContent = "Processing...";
+      document.getElementById("output-part-2").textContent = "Processing...";
 
-    try {
-      const result = run(year, day, 2, input);
-      document.getElementById("output-part-2").textContent = result;
-    } catch (e) {
-      console.error(e);
-      document.getElementById("output-part-2").textContent =
-        `An error has occurred while running the solution; please check your input.\n${e}`;
-    }
+      setTimeout(() => {
+        try {
+          const result = run(year, day, 2, input);
+          document.getElementById("output-part-2").textContent = result;
+        } catch (e) {
+          console.error(e);
+          document.getElementById("output-part-2").textContent =
+            `An error has occurred while running the solution; please check your input.\n${e}`;
+        }
+      }, 0);
+    }, 0);
   });
 }
 
