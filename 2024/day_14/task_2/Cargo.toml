@@ -1,7 +1,11 @@
 [package]
-name = "task_2"
+name = "solution_2024_14_2"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+
+[lib]
+name = "solution_2024_14_2"
+path = "src/lib.rs"
 
 [dependencies]
 rayon = "1.10.0"

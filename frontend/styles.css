@@ -1,0 +1,83 @@
+body {
+  background-color: #0f0f23;
+  color: #cccccc;
+  font-family: "Source Code Pro", monospace;
+  font-weight: 300;
+  margin: 0;
+  padding: 1em;
+}
+
+main {
+  max-width: 800px;
+  margin: auto;
+}
+
+h1 {
+  color: #009900;
+  text-align: center;
+  font-size: x-large;
+  font-weight: normal;
+}
+
+h2 {
+  color: #ffffff;
+  font-size: medium;
+  font-weight: normal;
+  margin-top: 2em;
+}
+
+h3 {
+  color: #009900;
+  font-size: medium;
+  font-weight: normal;
+  margin: 0em;
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+  background-color: #1e1e2e;
+  color: #ffffff;
+  border: 1px solid #444;
+  padding: 1em;
+  font-family: monospace;
+  font-size: 1em;
+  resize: vertical;
+}
+
+button {
+  margin-top: 1em;
+  background-color: #333;
+  color: #ffff66;
+  border: none;
+  padding: 0.5em 1em;
+  font-size: 1.1em;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #444;
+}
+
+#output-part-1,
+#output-part-2 {
+  white-space: pre-wrap;
+  background: #111122;
+  padding: 1em;
+  margin-top: 1em;
+  border-left: 4px solid #009900;
+  color: #e0e0e0;
+}
+
+#input-container {
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1em;
+}
+
+#output-container {
+  visibility: hidden;
+}
