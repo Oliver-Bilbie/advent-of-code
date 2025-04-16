@@ -11,7 +11,7 @@ dev-build:
 	@cd frontend && wasm-pack build --target web
 
 run:
-	@cd frontend && python3 -m http.server
+	@cd frontend && npx http-server . -c-1
 
 terraform:
 	@echo "[INFO] Deploying infrastructure"
