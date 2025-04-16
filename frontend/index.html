@@ -9,14 +9,18 @@
     <main>
       <h1>🎄 Advent of Code Solver</h1>
 
-      <h3>Select a puzzle</h3>
-      <div id="controls-container">
-        <label for="year">Year:</label>
+      <h2>Select a puzzle</h2>
+      <div id="input-container">
+        <label for="year">
+          <h3>Year:</h3>
+        </label>
         <select id="year-select">
           <option selected>2024</option>
         </select>
 
-        <label for="day">Day:</label>
+        <label for="day">
+          <h3>Day:</h3>
+        </label>
         <select id="day-select">
           <option selected>1</option>
           <option>2</option>
@@ -46,17 +50,17 @@
         </select>
       </div>
 
-      <h3>Paste your puzzle input here</h3>
+      <h2>Paste your puzzle input here</h2>
       <textarea id="input"></textarea>
 
       <button id="run-btn">▶ Run</button>
       <button id="stop-btn">⏹ Stop</button>
 
       <div id="output-container">
-        <h3>Solutions</h3>
-        <h4>Part 1</h4>
+        <h2>Solutions</h2>
+        <h3>Part 1</h3>
         <pre id="output-part-1"></pre>
-        <h4>Part 2</h4>
+        <h3>Part 2</h3>
         <pre id="output-part-2"></pre>
       </div>
     </main>

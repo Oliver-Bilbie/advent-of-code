@@ -1,7 +1,8 @@
 body {
   background-color: #0f0f23;
   color: #cccccc;
-  font-family: monospace;
+  font-family: "Source Code Pro", monospace;
+  font-weight: 300;
   margin: 0;
   padding: 1em;
 }
@@ -12,12 +13,24 @@ main {
 }
 
 h1 {
-  color: #ffff66;
+  color: #009900;
   text-align: center;
+  font-size: x-large;
+  font-weight: normal;
 }
 
-label {
-  color: #ffff66;
+h2 {
+  color: #ffffff;
+  font-size: medium;
+  font-weight: normal;
+  margin-top: 2em;
+}
+
+h3 {
+  color: #009900;
+  font-size: medium;
+  font-weight: normal;
+  margin: 0em;
 }
 
 textarea {
@@ -53,11 +66,11 @@ button:hover {
   background: #111122;
   padding: 1em;
   margin-top: 1em;
-  border-left: 4px solid #ffff66;
+  border-left: 4px solid #009900;
   color: #e0e0e0;
 }
 
-#controls-container {
+#input-container {
   display: flex;
   gap: 1em;
   align-items: center;
