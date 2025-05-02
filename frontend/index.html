@@ -14,47 +14,53 @@
         <label for="year">
           <h3>Year:</h3>
         </label>
-        <select id="year-select">
-          <option selected>2024</option>
-        </select>
+        <div class="dropdown">
+          <div class="dropdown-toggle" id="year-select">2024</div>
+          <div class="dropdown-menu">
+            <div class="dropdown-item">2024</div>
+          </div>
+        </div>
 
         <label for="day">
           <h3>Day:</h3>
         </label>
-        <select id="day-select">
-          <option selected>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
-          <option>6</option>
-          <option>7</option>
-          <option>8</option>
-          <option>9</option>
-          <option>10</option>
-          <option>11</option>
-          <option>12</option>
-          <option>13</option>
-          <option>14</option>
-          <option>15</option>
-          <option>16</option>
-          <option>17</option>
-          <option>18</option>
-          <option>19</option>
-          <option>20</option>
-          <option>21</option>
-          <option>22</option>
-          <option>23</option>
-          <option>24</option>
-          <option>25</option>
-        </select>
+        <div class="dropdown">
+          <div class="dropdown-toggle" id="day-select">1</div>
+          <div class="dropdown-menu">
+            <div class="dropdown-item">1</div>
+            <div class="dropdown-item">2</div>
+            <div class="dropdown-item">3</div>
+            <div class="dropdown-item">4</div>
+            <div class="dropdown-item">5</div>
+            <div class="dropdown-item">6</div>
+            <div class="dropdown-item">7</div>
+            <div class="dropdown-item">8</div>
+            <div class="dropdown-item">9</div>
+            <div class="dropdown-item">10</div>
+            <div class="dropdown-item">11</div>
+            <div class="dropdown-item">12</div>
+            <div class="dropdown-item">13</div>
+            <div class="dropdown-item">14</div>
+            <div class="dropdown-item">15</div>
+            <div class="dropdown-item">16</div>
+            <div class="dropdown-item">17</div>
+            <div class="dropdown-item">18</div>
+            <div class="dropdown-item">19</div>
+            <div class="dropdown-item">20</div>
+            <div class="dropdown-item">21</div>
+            <div class="dropdown-item">22</div>
+            <div class="dropdown-item">23</div>
+            <div class="dropdown-item">24</div>
+            <div class="dropdown-item">25</div>
+          </div>
+        </div>
       </div>
 
       <h2>Paste your puzzle input here</h2>
       <textarea id="input"></textarea>
 
       <button id="run-btn">▶ Run</button>
-      <button id="stop-btn">⏹ Stop</button>
+      <button id="stop-btn">■ Stop</button>
 
       <div id="output-container">
         <h2>Solutions</h2>

@@ -11,14 +11,14 @@ async function start() {
   let worker = newWorker();
 
   runButton.addEventListener("click", () => {
-    const year = parseInt(yearSelect.value, 10);
-    const day = parseInt(daySelect.value, 10);
+    const year = parseInt(yearSelect.textContent, 10);
+    const day = parseInt(daySelect.textContent, 10);
     const input = inputField.value;
 
     output1.textContent = "Processing...";
     output2.textContent = "Queued";
     outputContainer.style.visibility = "visible";
-    stopButton.disabled = false;
+    stopButton.style.visibility = "visible";
 
     worker.postMessage({ event: "run", year, day, part: 1, input });
   });
@@ -32,7 +32,7 @@ async function start() {
       } else if (output2.textContent === "Processing...") {
         output2.textContent = "Execution stopped.";
       }
-      stopButton.disabled = true;
+      stopButton.style.visibility = "hidden";
       worker = newWorker();
     }
   };
@@ -50,14 +50,14 @@ async function start() {
           output2.textContent = "Processing...";
           w.postMessage({
             event: "run",
-            year: parseInt(yearSelect.value, 10),
-            day: parseInt(daySelect.value, 10),
+            year: parseInt(yearSelect.textContent, 10),
+            day: parseInt(daySelect.textContent, 10),
             part: 2,
             input: inputField.value,
           });
         } else if (part === 2) {
           output2.textContent = result;
-          stopButton.disabled = true;
+          stopButton.style.visibility = "hidden";
         }
       }
 
@@ -69,18 +69,48 @@ async function start() {
         } else {
           output2.textContent = msg;
         }
-        stopButton.disabled = true;
+        stopButton.style.visibility = "hidden";
       }
     };
 
     w.onerror = (e) => {
       console.error("Worker error:", e.message);
       output1.textContent = "Worker error occurred.";
-      stopButton.disabled = true;
+      stopButton.style.visibility = "hidden";
     };
 
     return w;
   }
 }
 
+function setupDropdowns() {
+  document.querySelectorAll(".dropdown").forEach((dropdown) => {
+    const toggle = dropdown.querySelector(".dropdown-toggle");
+    const items = dropdown.querySelectorAll(".dropdown-item");
+
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.querySelectorAll(".dropdown").forEach((d) => {
+        if (d !== dropdown) d.classList.remove("open");
+      });
+      dropdown.classList.toggle("open");
+    });
+
+    items.forEach((item) => {
+      item.addEventListener("click", () => {
+        toggle.textContent = item.textContent;
+        dropdown.classList.remove("open");
+      });
+    });
+  });
+
+  // Close dropdowns if clicking outside
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".dropdown").forEach((dropdown) => {
+      dropdown.classList.remove("open");
+    });
+  });
+}
+
+setupDropdowns();
 start();

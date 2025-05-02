@@ -60,6 +60,10 @@ button:hover {
   background-color: #444;
 }
 
+#stop-btn {
+  visibility: hidden;
+}
+
 #output-part-1,
 #output-part-2 {
   white-space: pre-wrap;
@@ -78,6 +82,63 @@ button:hover {
   margin-bottom: 1em;
 }
 
+#input {
+  padding: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 #output-container {
   visibility: hidden;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100px;
+}
+
+.dropdown-toggle {
+  background-color: #1e1e2e;
+  color: #cccccc;
+  padding: 0.5em 1em;
+  border: 1px solid #444;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1em;
+}
+
+.dropdown-toggle::after {
+  content: "▾";
+  float: right;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #1e1e2e;
+  border: 1px solid #444;
+  border-top: none;
+  width: 100%;
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  overflow: scroll;
+  max-height: 50vh;
+  width: 98px;
+}
+
+.dropdown.open .dropdown-menu {
+  display: flex;
+}
+
+.dropdown-item {
+  padding: 0.5em 1em;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #333344;
+  color: #ffff66;
 }
