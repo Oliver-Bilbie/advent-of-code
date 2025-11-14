@@ -65,7 +65,7 @@ fn find_blocking_byte<'a>(input: &'a str, boundary: &Position) -> &'a str {
 
         // Find the next byte which appears in the current path
         let path = graph
-            .get_path_nodes(&(boundary - Position { row: 1, column: 1 }))
+            .get_shortest_path(&(boundary - Position { row: 1, column: 1 }))
             .unwrap();
 
         num_bytes_corrupted = (num_bytes_corrupted..corrupted_spaces.len())

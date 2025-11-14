@@ -160,7 +160,7 @@ where
         Ok(())
     }
 
-    pub fn get_path_nodes(&self, finish: &NodeId) -> Option<Vec<NodeId>> {
+    pub fn get_shortest_path(&self, finish: &NodeId) -> Option<Vec<NodeId>> {
         let mut route: Vec<NodeId> = vec![finish.clone()];
         let next_tiles = &self.get_node(&finish)?.previous_location;
 
@@ -169,12 +169,47 @@ where
         }
 
         for tile in next_tiles {
-            match &mut self.get_path_nodes(&tile) {
-                Some(value) => route.append(value),
-                None => return None,
+            if let Some(value) = &mut self.get_shortest_path(&tile) {
+                route.append(value);
+                return Some(route);
             }
         }
 
-        Some(route)
+        return None;
+    }
+
+    pub fn get_shortest_paths(&self, finish: &NodeId) -> Vec<Vec<NodeId>> {
+        let backward_paths = self.find_all_paths_helper(finish);
+
+        backward_paths
+            .into_iter()
+            .map(|mut path| {
+                path.reverse();
+                path
+            })
+            .collect()
+    }
+
+    fn find_all_paths_helper(&self, current: &NodeId) -> Vec<Vec<NodeId>> {
+        if let Some(current_node) = self.get_node(current) {
+            if current_node.previous_location.is_empty() {
+                return vec![vec![current.clone()]];
+            }
+
+            let mut all_paths_from_here = Vec::new();
+
+            for prev_node_id in &current_node.previous_location {
+                let paths_to_predecessor = self.find_all_paths_helper(prev_node_id);
+
+                for mut path in paths_to_predecessor {
+                    path.push(current.clone());
+                    all_paths_from_here.push(path);
+                }
+            }
+
+            all_paths_from_here
+        } else {
+            Vec::new()
+        }
     }
 }

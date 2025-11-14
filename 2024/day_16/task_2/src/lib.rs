@@ -142,10 +142,12 @@ fn count_best_tiles(maze: &mut Maze) -> u64 {
         }
     }
 
-    let best_path_nodes = maze.graph.get_path_nodes(&finish.unwrap()).unwrap();
+    let best_paths = maze.graph.get_shortest_paths(&finish.unwrap());
     // We now need to de-duplicate the nodes with respect to physical position.
-    let positions: HashSet<Position> =
-        HashSet::from_iter(best_path_nodes.iter().map(|tile| tile.position.clone()));
+    let positions: HashSet<Position> = best_paths
+        .iter()
+        .flat_map(|path| path.iter().map(|tile| tile.position.clone()))
+        .collect();
 
     positions.len() as u64
 }
