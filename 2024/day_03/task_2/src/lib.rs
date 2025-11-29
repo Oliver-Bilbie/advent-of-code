@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 fn read_mul(input: &str, index: usize) -> Option<(u16, u16)> {
     let prefix = input.get(index..index + 4)?;
     if prefix != "mul(" {
@@ -20,6 +22,7 @@ fn read_do(input: &str, index: usize) -> Option<bool> {
     }
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut sum_of_products: u128 = 0;
     let mut is_enabled = true;

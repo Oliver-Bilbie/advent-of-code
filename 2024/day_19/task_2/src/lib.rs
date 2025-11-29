@@ -1,6 +1,7 @@
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
+use wasm_bindgen::prelude::*;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 enum Color {
@@ -113,6 +114,7 @@ fn count_pattern_combinations(pattern: &Vec<Color>, towels: &HashSet<Towel>) -> 
     inner(pattern.clone(), towels, &mut cache)
 }
 
+#[wasm_bindgen]
 pub fn solve(input_str: &str) -> String {
     let input = Input::from_str(&input_str);
     let valid_patterns: u64 = input

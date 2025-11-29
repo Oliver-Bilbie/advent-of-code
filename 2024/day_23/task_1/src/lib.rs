@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use wasm_bindgen::prelude::*;
 
 #[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Clone, Debug)]
 struct Computer {
@@ -34,6 +35,7 @@ impl Party {
     }
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let network_map = build_network_map(input);
     let all_sets = find_sets(&network_map);

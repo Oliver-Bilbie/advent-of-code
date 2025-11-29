@@ -1,4 +1,5 @@
 use rayon::prelude::*;
+use wasm_bindgen::prelude::*;
 
 #[derive(PartialEq, Debug)]
 struct Equation {
@@ -74,6 +75,7 @@ fn total_calibration_result(equations: &Vec<Equation>) -> u128 {
         .sum()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let equations = read_equations(&input);
     let result = total_calibration_result(&equations);

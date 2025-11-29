@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 #[derive(PartialEq, Clone, Debug)]
 enum Opcode {
     Adv,
@@ -178,6 +180,7 @@ fn read_input(input: &str) -> Device {
     }
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let device = read_input(&input);
 

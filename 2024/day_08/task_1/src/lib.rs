@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::ops::{Add, Sub};
+use wasm_bindgen::prelude::*;
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 struct Position {
@@ -120,6 +121,7 @@ fn count_antinode_positions(antennas: &HashMap<char, Vec<Position>>, boundary: &
         .len() as u64
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let (antennas, boundary) = read_antennas(&input);
     let antinode_count = count_antinode_positions(&antennas, &boundary);

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use wasm_bindgen::prelude::*;
 
 #[derive(PartialEq, Clone, Debug)]
 enum Gate {
@@ -25,6 +26,7 @@ struct Instruction {
     output: String,
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     return format!("The output is: {}", result(input));
 }

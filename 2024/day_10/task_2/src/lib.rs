@@ -1,4 +1,5 @@
 use aoc_utils::{direction::*, position::*};
+use wasm_bindgen::prelude::*;
 
 #[derive(Clone)]
 struct Node {
@@ -151,6 +152,7 @@ fn count_routes(map: Map) -> u64 {
         .sum()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let map = read_map(&input);
     let route_count = count_routes(map);

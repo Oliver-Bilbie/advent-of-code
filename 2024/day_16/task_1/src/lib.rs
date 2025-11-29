@@ -3,6 +3,7 @@ use aoc_utils::{
     graph::graph::{Edge, Graph},
     position::*,
 };
+use wasm_bindgen::prelude::*;
 
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 struct Tile {
@@ -139,6 +140,7 @@ fn find_minimum_distance(maze: &mut Maze) -> Option<u128> {
     min_distance
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut maze = read_maze(&input);
     let min_distance = find_minimum_distance(&mut maze);

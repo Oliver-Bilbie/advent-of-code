@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 struct Tile {
     has_obstacle: bool,
     visited: bool,
@@ -145,6 +147,7 @@ fn count_visited(tiles: &Vec<Vec<Tile>>) -> u32 {
         .sum()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut lab = read_lab(&input);
 

@@ -1,4 +1,5 @@
 use rayon::prelude::*;
+use wasm_bindgen::prelude::*;
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 struct Position {
@@ -128,6 +129,7 @@ fn display_robots(robots: &[Robot], boundary: &Position) -> String {
     robots_string
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let robots = read_robots(&input);
     let boundary = Position { x: 101, y: 103 };

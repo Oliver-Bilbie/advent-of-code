@@ -1,8 +1,10 @@
 use crate::helpers::keypad::Keypad;
 use std::collections::HashMap;
+use wasm_bindgen::prelude::*;
 
 pub mod helpers;
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let result = input
         .lines()

@@ -1,8 +1,11 @@
+use wasm_bindgen::prelude::*;
+
 struct Profiles {
     locks: Vec<[u8; 5]>,
     keys: Vec<[u8; 5]>,
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     return format!("There are {} unique combinations", result(input));
 }

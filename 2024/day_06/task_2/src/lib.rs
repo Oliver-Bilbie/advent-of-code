@@ -1,5 +1,6 @@
 use rayon::prelude::*;
 use std::collections::HashSet;
+use wasm_bindgen::prelude::*;
 
 #[derive(Clone)]
 struct Tile {
@@ -216,6 +217,7 @@ fn find_positions(lab: &Lab) -> u64 {
         .count() as u64
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let lab = read_lab(&input);
     let possible_positions = find_positions(&lab);

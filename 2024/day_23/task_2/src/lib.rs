@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use wasm_bindgen::prelude::*;
 
 #[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Clone, Debug)]
 struct Computer {
@@ -19,6 +20,7 @@ impl std::fmt::Display for Computer {
     }
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let network_map = build_network_map(input);
     let party = find_lan_party(&network_map).expect("no lan parties were found");

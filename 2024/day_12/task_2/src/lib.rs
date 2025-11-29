@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 struct Position {
     row: i16,
@@ -281,6 +283,7 @@ fn calculate_fence_cost(garden: &Garden) -> u64 {
         .sum()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let garden = read_garden(&input);
     let fence_cost = calculate_fence_cost(&garden);

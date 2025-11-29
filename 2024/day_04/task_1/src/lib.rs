@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 #[derive(PartialEq, Clone, Debug)]
 struct Position {
     row: usize,
@@ -132,6 +134,7 @@ fn read_grid(input: &str) -> Vec<Vec<char>> {
     input.lines().map(|line| line.chars().collect()).collect()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let grid = read_grid(&input);
     let word_count = count_words(&grid);

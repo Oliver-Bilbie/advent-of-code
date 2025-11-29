@@ -4,6 +4,7 @@ use aoc_utils::{
     position::*,
 };
 use rayon::prelude::*;
+use wasm_bindgen::prelude::*;
 
 #[derive(Clone, PartialEq)]
 enum Tile {
@@ -145,6 +146,7 @@ fn find_cheat_savings(maze: &Maze, cheat_radius: usize) -> Vec<u128> {
         .collect()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let maze = Maze::from_str(&input);
     let cheat_count = find_cheat_savings(&maze, 20)

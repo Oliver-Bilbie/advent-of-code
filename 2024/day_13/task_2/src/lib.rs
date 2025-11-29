@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 #[derive(PartialEq, Debug)]
 struct Position {
     x: i64,
@@ -85,6 +87,7 @@ fn solve_machine(machine: &Machine) -> Option<Solution> {
     })
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let machines = read_machines(&input);
     let total_cost: u64 = machines

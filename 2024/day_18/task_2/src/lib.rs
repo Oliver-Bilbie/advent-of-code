@@ -3,6 +3,7 @@ use aoc_utils::{
     graph::graph::{Edge, Graph},
     position::*,
 };
+use wasm_bindgen::prelude::*;
 
 fn find_minimum_distance(graph: &mut Graph<Position>, boundary: &Position) -> Option<u128> {
     let start = Position { row: 0, column: 0 };
@@ -78,6 +79,7 @@ fn find_blocking_byte<'a>(input: &'a str, boundary: &Position) -> &'a str {
     input.lines().nth(num_bytes_corrupted - 1).unwrap()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let boundary = Position {
         row: 71,
