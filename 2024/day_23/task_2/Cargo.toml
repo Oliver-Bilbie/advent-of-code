@@ -1,0 +1,11 @@
+[package]
+name = "solution_2024_23_2"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "solution_2024_23_2"
+path = "src/lib.rs"
+
+[dependencies]
+aoc_utils = { path = "../../../aoc_utils" }
