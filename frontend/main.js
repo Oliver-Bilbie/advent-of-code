@@ -4,6 +4,7 @@ async function start() {
   const inputField = document.getElementById("input");
   const runButton = document.getElementById("run-btn");
   const stopButton = document.getElementById("stop-btn");
+  const resetButton = document.getElementById("reset-btn");
   const output1 = document.getElementById("output-part-1");
   const output2 = document.getElementById("output-part-2");
   const outputContainer = document.getElementById("output-container");
@@ -19,6 +20,7 @@ async function start() {
     output2.textContent = "Queued";
     outputContainer.style.visibility = "visible";
     stopButton.disabled = false;
+    resetButton.disabled = true;
 
     worker.postMessage({ event: "run", year, day, part: 1, input });
   });
@@ -33,8 +35,16 @@ async function start() {
         output2.textContent = "Execution stopped.";
       }
       stopButton.disabled = true;
+      resetButton.disabled = false;
       worker = newWorker();
     }
+  };
+
+  resetButton.onclick = () => {
+    inputField.value = "";
+    outputContainer.style.visibility = "hidden";
+    output1.textContent = "";
+    output2.textContent = "";
   };
 
   function newWorker() {
@@ -58,6 +68,7 @@ async function start() {
         } else if (part === 2) {
           output2.textContent = result;
           stopButton.disabled = true;
+          resetButton.disabled = false;
         }
       }
 
@@ -70,6 +81,7 @@ async function start() {
           output2.textContent = msg;
         }
         stopButton.disabled = true;
+        resetButton.disabled = false;
       }
     };
 
@@ -77,6 +89,7 @@ async function start() {
       console.error("Worker error:", e.message);
       output1.textContent = "Worker error occurred.";
       stopButton.disabled = true;
+      resetButton.disabled = false;
     };
 
     return w;
