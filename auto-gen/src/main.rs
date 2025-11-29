@@ -1,20 +1,32 @@
 use std::{
     fs::{self, File},
     io::{BufWriter, Write},
-    path::PathBuf,
+    path::{Path, PathBuf},
+    process::Command,
+    time::SystemTime,
 };
+
+struct SolutionInfo {
+    path: PathBuf,
+    crate_name: String,
+}
 
 fn main() {
     let project_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .expect("must be inside /auto-gen")
         .to_path_buf();
+    let wasm_output_dir = project_root.join("frontend/wasm");
+    let solution_paths = scan_solutions_and_generate_manifest(&project_root);
 
-    let frontend_dir = project_root.join("frontend");
+    build_solution_crates(&solution_paths, &wasm_output_dir);
 
+    println!("\n🎉 Successfully completed incremental WASM build.");
+}
+
+fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo> {
     let mut members = vec![];
-    let mut deps = vec![];
-    let mut registry = vec![];
+    let mut solution_paths = vec![];
 
     for year in 2024..=2024 {
         for day in 1..=25 {
@@ -22,86 +34,107 @@ fn main() {
                 let path = project_root.join(format!("{}/day_{:02}/task_{}", year, day, part));
 
                 if path.join("src/lib.rs").exists() {
-                    let rel_path = path.strip_prefix(&project_root).unwrap();
+                    let rel_path = path.strip_prefix(project_root).unwrap();
                     let crate_name = format!("solution_{}_{:02}_{}", year, day, part);
 
                     members.push(format!("  \"{}\",", rel_path.display()));
-                    deps.push(format!(
-                        "{} = {{ path = \"../{}\" }}",
-                        crate_name,
-                        rel_path.display()
-                    ));
-                    registry.push((year, day, part, crate_name));
+                    solution_paths.push(SolutionInfo { path, crate_name });
                 }
             }
         }
     }
 
-    // === Write workspace Cargo.toml ===
     let root_cargo = project_root.join("Cargo.toml");
-    let mut root_file = BufWriter::new(File::create(root_cargo).unwrap());
-    writeln!(root_file, "[workspace]\nmembers = [").unwrap();
-    for member in &members {
-        writeln!(root_file, "{}", member).unwrap();
-    }
-    writeln!(root_file, "  \"frontend\",\n  \"auto-gen\"\n]").unwrap();
+    {
+        let mut root_file = BufWriter::new(File::create(root_cargo).unwrap());
 
-    // === Patch frontend/Cargo.toml ===
-    let frontend_cargo = frontend_dir.join("Cargo.toml");
-    let original = fs::read_to_string(&frontend_cargo).unwrap_or_default();
-    let mut new_frontend = String::new();
-
-    for line in original.lines() {
-        if line.trim() == "# (This will break the auto-generation)" {
-            break;
+        writeln!(root_file, "[workspace]\nmembers = [").unwrap();
+        for member in &members {
+            writeln!(root_file, "{}", member).unwrap();
         }
-        new_frontend.push_str(line);
-        new_frontend.push('\n');
-    }
-    new_frontend.push_str("# (This will break the auto-generation)\n\n");
+        writeln!(root_file, "  \"frontend\",\n  \"auto-gen\"\n]").unwrap();
 
-    for dep in &deps {
-        new_frontend.push_str(dep);
-        new_frontend.push('\n');
+        root_file.flush().unwrap();
     }
 
-    fs::write(&frontend_cargo, new_frontend).unwrap();
+    println!(
+        "✅ Generated dynamic root Cargo.toml with {} members.",
+        solution_paths.len()
+    );
 
-    // === Generate frontend/src/lib.rs ===
-    let generated = frontend_dir.join("src/lib.rs");
-    let mut file = BufWriter::new(File::create(&generated).unwrap());
+    solution_paths
+}
 
-    for (_, _, _, crate_name) in &registry {
-        writeln!(file, "use {};", crate_name).unwrap();
+fn is_recompile_needed(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> bool {
+    let wasm_path = wasm_output_dir.join(format!("{}_bg.wasm", solution_info.crate_name));
+    let solution_path = &solution_info.path;
+
+    // Case 1: No WASM file currently exists
+    if !wasm_path.exists() {
+        println!(
+            "   - ➡️ Compiling {} (WASM file not found).",
+            solution_info.crate_name
+        );
+        return true;
     }
 
-    writeln!(
-        file,
-        r#"
-use wasm_bindgen::prelude::*;
+    // Case 2: Source file is newer than WASM file
+    let wasm_metadata = fs::metadata(&wasm_path).expect("Failed to get WASM metadata");
+    let wasm_mtime = wasm_metadata
+        .modified()
+        .expect("WASM file has no modification time");
 
-#[wasm_bindgen]
-pub fn run(year: u16, day: u16, part: u16, input: &str) -> String {{
-    match (year, day, part) {{"#
-    )
-    .unwrap();
+    let source_files = ["src/lib.rs", "Cargo.toml"];
+    for file_name in source_files {
+        let source_path = solution_path.join(file_name);
+        if !source_path.exists() {
+            continue;
+        }
 
-    for (year, day, part, crate_name) in &registry {
-        writeln!(
-            file,
-            "        ({}, {}, {}) => {}::solve(input).to_string(),",
-            year, day, part, crate_name
-        )
-        .unwrap();
+        let source_mtime = fs::metadata(&source_path)
+            .and_then(|m| m.modified())
+            .unwrap_or(SystemTime::UNIX_EPOCH);
+
+        if source_mtime > wasm_mtime {
+            println!(
+                "   - ➡️ Recompiling {} ({} modified).",
+                solution_info.crate_name, file_name
+            );
+            return true;
+        }
     }
 
-    writeln!(
-        file,
-        r#"        _ => "Not implemented yet".to_string(),
-    }}
-}}"#
-    )
-    .unwrap();
+    // Case 3: No recompile needed
+    false
+}
 
-    println!("✅ Generated workspace and frontend files.");
+fn build_solution_crates(solution_paths: &[SolutionInfo], wasm_output_dir: &Path) {
+    println!("\n📦 Starting WASM compilation (Incremental)...");
+
+    for info in solution_paths {
+        if is_recompile_needed(info, wasm_output_dir) {
+            let output = Command::new("wasm-pack")
+                .arg("build")
+                .arg(&info.path)
+                .arg("--target")
+                .arg("web")
+                .arg("--out-dir")
+                .arg(wasm_output_dir)
+                .arg("--out-name")
+                .arg(&info.crate_name)
+                .output()
+                .expect(&format!(
+                    "Failed to execute wasm-pack for {}",
+                    info.crate_name
+                ));
+
+            if !output.status.success() {
+                eprintln!("❌ WASM build failed for {}:", info.crate_name);
+                eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+                panic!("WASM build failed.");
+            } else {
+                println!("   - ✅ Successfully built {}.", info.crate_name);
+            }
+        }
+    }
 }
