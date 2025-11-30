@@ -1,4 +1,18 @@
 [package]
-name = "task_2"
+name = "solution_2023_14_2"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+
+[lib]
+name = "solution_2023_14_2"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[dependencies]
+wasm-bindgen = "0.2.100"
