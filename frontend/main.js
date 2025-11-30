@@ -47,6 +47,22 @@ async function start() {
     output2.textContent = "";
   };
 
+  yearSelect.addEventListener("change", triggerWasmLoad);
+  daySelect.addEventListener("change", triggerWasmLoad);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (yearSelect.value && daySelect.value) {
+      triggerWasmLoad();
+    }
+  });
+
+  function triggerWasmLoad() {
+    const year = parseInt(yearSelect.value, 10);
+    const day = parseInt(daySelect.value, 10);
+    worker.postMessage({ event: "load", year, day, part: 1 });
+    worker.postMessage({ event: "load", year, day, part: 2 });
+  }
+
   function newWorker() {
     const w = new Worker("worker.js", { type: "module" });
     w.postMessage({ event: "init" });
