@@ -89,7 +89,7 @@ async function start() {
       }
 
       if (event === "error") {
-        const msg = `An error has occurred while running the program.\nPlease check that the provided input is correct.\n${message}`;
+        const msg = `An error has occurred while running the program.\nPlease check that the provided input is correct.\n\n${message}`;
         if (part === 1) {
           output1.textContent = msg;
           output2.textContent = "Cancelled";

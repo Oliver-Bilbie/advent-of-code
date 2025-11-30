@@ -2,38 +2,40 @@ const WASM_MODULE_CACHE = new Map();
 
 export async function loadSolution(year, day, part) {
   const dayStr = String(day).padStart(2, "0");
-  const crateName = `solution_${year}_${dayStr}_${part}`;
+  const name = `solution_${year}_${dayStr}_${part}`;
 
-  if (WASM_MODULE_CACHE.has(crateName)) {
-    return; // Already loaded and cached
+  if (WASM_MODULE_CACHE.has(name)) {
+    return true; // Already loaded and cached
   }
 
-  const jsGluePath = `./wasm/${crateName}.js`;
+  const jsGluePath = `./wasm/${name}.js`;
 
   try {
     const module = await import(jsGluePath);
 
     if (typeof module.default === "function") {
       await module.default();
+      WASM_MODULE_CACHE.set(name, module);
+      return true;
     } else {
-      console.warn(
-        `WASM module ${crateName} is missing the default initialization function.`,
-      );
+      return false;
     }
-
-    WASM_MODULE_CACHE.set(crateName, module);
   } catch (error) {
-    throw new Error(`Loading failed: ${error.message}`);
+    return false;
   }
 }
 
 export async function runSolution(year, day, part, input) {
   const dayStr = String(day).padStart(2, "0");
-  const crateName = `solution_${year}_${dayStr}_${part}`;
+  const name = `solution_${year}_${dayStr}_${part}`;
 
-  await loadSolution(year, day, part);
+  const isSuccess = await loadSolution(year, day, part);
 
-  const moduleExports = WASM_MODULE_CACHE.get(crateName);
+  if (!isSuccess) {
+    return "Not yet implemented";
+  }
+
+  const moduleExports = WASM_MODULE_CACHE.get(name);
 
   if (typeof moduleExports.solve === "function") {
     try {
@@ -44,8 +46,6 @@ export async function runSolution(year, day, part, input) {
       );
     }
   } else {
-    throw new Error(
-      `Solver function 'solve' not found in module ${crateName}.`,
-    );
+    throw new Error(`Solver function 'solve' not found in module ${name}.`);
   }
 }

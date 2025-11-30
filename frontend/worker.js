@@ -31,5 +31,6 @@ self.onmessage = async (e) => {
           error.message || "Unknown error during dynamic WASM execution.",
       });
     }
+    return;
   }
 };

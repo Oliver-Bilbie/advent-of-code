@@ -28,7 +28,7 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
     let mut members = vec![];
     let mut solution_paths = vec![];
 
-    for year in 2024..=2024 {
+    for year in 2023..=2024 {
         for day in 1..=25 {
             for part in 1..=2 {
                 let path = project_root.join(format!("{}/day_{:02}/task_{}", year, day, part));
