@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -58,13 +57,8 @@ func get_contribution(input string) uint8 {
 	}
 }
 
-func main() {
-	file, err := os.Open("input.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
 
 	var possible_game_ids_sum uint64 = 0
 
@@ -73,9 +67,5 @@ func main() {
 		possible_game_ids_sum += uint64(get_contribution(line_data))
 	}
 
-	fmt.Printf("Sum of the IDs of possible games: %d\n", possible_game_ids_sum)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	return fmt.Sprintf("Sum of the IDs of possible games: %d\n", possible_game_ids_sum)
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -53,10 +52,8 @@ func get_minimum_value(values []uint64) uint64 {
 	return minimum
 }
 
-func main() {
-	file, _ := os.Open("input.txt")
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
 
 	// Read seed values
 	scanner.Scan()
@@ -78,6 +75,7 @@ func main() {
 	}
 	apply_mappings(section_mappings, seeds)
 
-  closest_seed := get_minimum_value(seeds)
-  fmt.Printf("closest seed: %d\n", closest_seed)
+	closest_seed := get_minimum_value(seeds)
+
+	return fmt.Sprintf("closest seed: %d\n", closest_seed)
 }

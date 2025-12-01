@@ -3,10 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"slices"
 	"strconv"
+	"strings"
 )
+
+const NUM_OF_CARDS uint8 = 198
 
 const WINNING_NUMBERS_LENGTH int = 10
 const CARD_NUMBERS_LENGTH int = 25
@@ -54,37 +56,61 @@ func get_number_set(card_values string, number_set bool) []uint8 {
 	return number_set_values
 }
 
-func get_card_score(card_values string) uint32 {
+func update_card_totals(card_totals []uint32, card_values string) {
+	// We need to convert the card id from a string to a uint8
+	// This somehow takes nine lines in Go...
+	// (This may be a skill issue)
+	var card_id uint8
+	card_id_u64, err := strconv.ParseUint(card_values[5:8], 10, 16)
+	if err != nil {
+		card_id_u64, err = strconv.ParseUint(card_values[6:8], 10, 16)
+		if err != nil {
+			card_id_u64, _ = strconv.ParseUint(card_values[7:8], 10, 16)
+		}
+	}
+	card_id = uint8(card_id_u64)
+
 	winning_numbers := get_number_set(card_values, WINNING_NUMBERS)
 	card_numbers := get_number_set(card_values, CARD_NUMBERS)
 
-	// Evaluate the score
-	var score uint32 = 0
+	var num_of_matches uint8 = 0
+
 	for i := 0; i < len(winning_numbers); i++ {
 		winning_number := winning_numbers[i]
 		if slices.Contains(card_numbers, winning_number) {
-			if score == 0 {
-				score = 1
-			} else {
-				score *= 2
-			}
+			num_of_matches++
 		}
 	}
 
-	return score
+	var max_id_to_increase uint8
+	if card_id+num_of_matches-1 < NUM_OF_CARDS-1 {
+		max_id_to_increase = card_id - 1 + num_of_matches
+	} else {
+		max_id_to_increase = NUM_OF_CARDS - 1
+	}
+
+	for id_to_increase := card_id; id_to_increase <= max_id_to_increase; id_to_increase++ {
+		card_totals[id_to_increase] += card_totals[card_id-1]
+	}
 }
 
-func main() {
-	file, _ := os.Open("input.txt")
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
 
-	var total_points uint32 = 0
+	var card_totals []uint32 = make([]uint32, NUM_OF_CARDS)
+	for i := range card_totals {
+		card_totals[i] = 1
+	}
 
 	for scanner.Scan() {
 		var line_data string = scanner.Text()
-		total_points += get_card_score(line_data)
+		update_card_totals(card_totals, line_data)
 	}
 
-	fmt.Printf("Total points: %d\n", total_points)
+	var total_cards uint32 = 0
+	for i := 0; i < int(NUM_OF_CARDS); i++ {
+		total_cards += card_totals[i]
+	}
+
+	return fmt.Sprintf("Total points: %d\n", total_cards)
 }

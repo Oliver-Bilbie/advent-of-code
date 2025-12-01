@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"strings"
 )
 
 // This is a LOT easier than in Rust!
@@ -108,14 +108,13 @@ func all_paths_finished(cycle_data []CycleData, step_index int) bool {
 	return true
 }
 
-func main() {
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
+
 	var lines []string
-	file, _ := os.Open("input.txt")
-	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-	file.Close()
 
 	var directions = lines[0]
 	var nodes_map = generate_network(lines[2:])
@@ -130,5 +129,5 @@ func main() {
 		number_of_steps += cycle_data[0].cycle_length
 	}
 
-	fmt.Println("Total steps: ", number_of_steps)
+	return fmt.Sprintln("Total steps: ", number_of_steps)
 }

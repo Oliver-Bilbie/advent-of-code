@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -49,13 +48,8 @@ func get_power(input string) uint64 {
 	return min_red * min_green * min_blue
 }
 
-func main() {
-	file, err := os.Open("input.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
 
 	var powers_sum uint64 = 0
 
@@ -64,9 +58,5 @@ func main() {
 		powers_sum += uint64(get_power(line_data))
 	}
 
-	fmt.Printf("Sum of powers: %d\n", powers_sum)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	return fmt.Sprintf("Sum of powers: %d\n", powers_sum)
 }

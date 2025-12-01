@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"strings"
 )
 
 type Node struct {
@@ -28,14 +28,13 @@ func generate_network(node_details []string) map[string]*Node {
 	return nodes_map
 }
 
-func main() {
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
+
 	var lines []string
-	file, _ := os.Open("input.txt")
-	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-	file.Close()
 
 	var directions = lines[0]
 	var direction_index = 0
@@ -59,5 +58,5 @@ func main() {
 		steps += 1
 	}
 
-	fmt.Println("Getting from AAA to ZZZ took", steps, "steps")
+	return fmt.Sprintln("Getting from AAA to ZZZ took", steps, "steps")
 }

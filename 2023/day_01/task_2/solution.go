@@ -3,8 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -83,13 +81,8 @@ func find_last_num(input string) uint8 {
 	}
 }
 
-func task_2() {
-	file, err := os.Open("input.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
 
 	var calibration_value_sum uint64 = 0
 
@@ -102,13 +95,5 @@ func task_2() {
 		calibration_value_sum += uint64(calibration_value)
 	}
 
-	fmt.Printf("Sum of calibration values: %d\n", calibration_value_sum)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func main() {
-	task_2()
+	return fmt.Sprintf("Sum of calibration values: %d\n", calibration_value_sum)
 }

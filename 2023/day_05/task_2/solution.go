@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -67,10 +66,8 @@ func is_seed(seed_id uint64, seeds []seed) bool {
 	return false
 }
 
-func main() {
-	file, _ := os.Open("input.txt")
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
 
 	// Read seed values
 	scanner.Scan()
@@ -107,5 +104,5 @@ func main() {
     location_index++
 	}
 
-  fmt.Printf("Closest location: %d\n", location_index-1)
+  return fmt.Sprintf("Closest location: %d\n", location_index-1)
 }

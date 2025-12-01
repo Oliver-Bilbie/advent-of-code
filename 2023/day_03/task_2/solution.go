@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
+	"strings"
 )
 
 type gear struct {
@@ -58,7 +58,7 @@ func evaluate_line_numbers(input string, line_number int64, gears []gear) []gear
 
 			// Check whether the number is adjacent to a gear
 			// This is a bit inefficient but I don't have more time to commit to this
-      for i := 0; i < len(gears); i++ {
+			for i := 0; i < len(gears); i++ {
 				// If the number is adjacent to a gear, attach it to the gear
 				if gears[i].line >= line_number-1 && gears[i].line <= line_number+1 && gears[i].column >= start_column-1 && gears[i].column <= end_column {
 					if gears[i].number_1 == 0 {
@@ -66,7 +66,7 @@ func evaluate_line_numbers(input string, line_number int64, gears []gear) []gear
 					} else if gears[i].number_2 == 0 {
 						gears[i].number_2, _ = strconv.ParseInt(input[start_column:end_column], 10, 16)
 					} else {
-            log.Fatal("Gear has more than 2 numbers")
+						log.Fatal("Gear has more than 2 numbers")
 					}
 				}
 			}
@@ -81,19 +81,15 @@ func evaluate_line_numbers(input string, line_number int64, gears []gear) []gear
 }
 
 func evaluate_gear_ratio_sum(gears []gear) int64 {
-  var gear_ratios_sum int64 = 0
-  for i := 0; i < len(gears); i++ {
-    gear_ratios_sum += gears[i].number_1 * gears[i].number_2
-  }
-  return gear_ratios_sum
+	var gear_ratios_sum int64 = 0
+	for i := 0; i < len(gears); i++ {
+		gear_ratios_sum += gears[i].number_1 * gears[i].number_2
+	}
+	return gear_ratios_sum
 }
 
-func main() {
-	file, err := os.Open("input.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	scanner := bufio.NewScanner(file)
+func Solve(input string) string {
+	scanner := bufio.NewScanner(strings.NewReader(input))
 
 	var line_number int64 = 0
 	var gears []gear
@@ -104,22 +100,17 @@ func main() {
 		line_number++
 	}
 
-	file.Seek(0, 0)
-	scanner = bufio.NewScanner(file)
+	scanner = bufio.NewScanner(strings.NewReader(input))
 	line_number = 0
 	for scanner.Scan() {
 		var line_data string = scanner.Text()
 
-    gears = evaluate_line_numbers(line_data, line_number, gears)
+		gears = evaluate_line_numbers(line_data, line_number, gears)
 
 		line_number++
 	}
 
-  gear_ratios_sum := evaluate_gear_ratio_sum(gears)
-	fmt.Printf("Sum of gear ratios: %d\n", gear_ratios_sum)
+	gear_ratios_sum := evaluate_gear_ratio_sum(gears)
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-	file.Close()
+	return fmt.Sprintf("Sum of gear ratios: %d\n", gear_ratios_sum)
 }
