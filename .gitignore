@@ -15,3 +15,4 @@ frontend/terraform/.terraform.lock.hcl
 frontend/terraform/terraform.tfvars
 frontend/wasm
 /Cargo.toml
+.tool-versions
