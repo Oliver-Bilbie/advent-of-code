@@ -43,7 +43,7 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
     let mut rs_members = vec![];
     let mut solution_paths = vec![];
 
-    for year in 2023..=2024 {
+    for year in 2023..=2025 {
         for day in 1..=25 {
             for part in 1..=2 {
                 let rel_path = format!("{}/day_{:02}/task_{}", year, day, part);
@@ -96,13 +96,6 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
     solution_paths
 }
 
-fn get_output_path(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> PathBuf {
-    match solution_info.language {
-        Language::Rust => wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name)),
-        Language::Go => wasm_output_dir.join(format!("{}.wasm", solution_info.name)),
-    }
-}
-
 const fn get_source_files(language: &Language) -> &'static [&'static str] {
     match language {
         Language::Rust => RUST_SOURCE_FILES,
@@ -111,7 +104,7 @@ const fn get_source_files(language: &Language) -> &'static [&'static str] {
 }
 
 fn is_recompile_needed(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> bool {
-    let output_path = get_output_path(solution_info, wasm_output_dir);
+    let output_path = wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name));
     let solution_path = &solution_info.path;
     let name = &solution_info.name;
 
@@ -166,18 +159,25 @@ fn get_build_commands(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> V
             vec![wasm_pack_cmd]
         }
         Language::Go => {
-            let mut go_cmd = Command::new("go");
+            let mut go_cmd = Command::new("tinygo");
             go_cmd
                 .current_dir(&solution_info.path)
-                .env("GOOS", "js")
-                .env("GOARCH", "wasm")
                 .arg("build")
                 .arg("-o")
-                .arg(wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name)));
+                .arg(wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name)))
+                .arg("-target")
+                .arg("wasm")
+                .arg("-no-debug")
+                .arg("-ldflags")
+                .arg(format!("-X main.SolverName={}", solution_info.name))
+                .arg(".");
 
             let mut js_wrapper_cmd = Command::new("sh");
             js_wrapper_cmd.arg("-c").arg(format!(
-                "sed 's&__WASM_PATH__&wasm/{name}_bg.wasm&g' {template} > {outdir}/{name}.js",
+                "sed \
+                    -e 's&__WASM_PATH__&wasm/{name}_bg.wasm&g' \
+                    -e 's&__SOLVER_NAME__&{name}&g' \
+                    {template} > {outdir}/{name}.js",
                 name = solution_info.name,
                 template = format!("{}/go_template.js", env!("CARGO_MANIFEST_DIR")),
                 outdir = wasm_output_dir.display(),
@@ -185,7 +185,7 @@ fn get_build_commands(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> V
 
             let mut js_glue_cmd = Command::new("sh");
             js_glue_cmd.arg("-c").arg(format!(
-                "cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" \"{}\"",
+                "cp \"$(tinygo env TINYGOROOT)/targets/wasm_exec.js\" \"{}\"",
                 wasm_output_dir.join("wasm_exec.js").display()
             ));
 

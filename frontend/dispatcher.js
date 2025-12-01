@@ -21,7 +21,6 @@ export async function loadSolution(year, day, part) {
       return false;
     }
   } catch (error) {
-    console.log(error)
     return false;
   }
 }

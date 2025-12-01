@@ -11,9 +11,7 @@ self.onmessage = async (e) => {
     try {
       await loadSolution(year, day, part);
     } catch (error) {
-      console.error(
-        `Pre-load failed for Day ${day} Part ${part}: ${error.message}`,
-      );
+      console.error(`Failed to load Day ${day} Part ${part}: ${error.message}`);
     }
     return;
   }
@@ -23,7 +21,6 @@ self.onmessage = async (e) => {
       const result = await runSolution(year, day, part, input);
       self.postMessage({ event: "result", part, result });
     } catch (error) {
-      console.error("Worker Execution Error:", error);
       self.postMessage({
         event: "error",
         part,
