@@ -21,6 +21,7 @@ export async function loadSolution(year, day, part) {
       return false;
     }
   } catch (error) {
+    console.log(error)
     return false;
   }
 }
@@ -42,7 +43,7 @@ export async function runSolution(year, day, part, input) {
       return moduleExports.solve(input);
     } catch (runtimeError) {
       throw new Error(
-        `Execution aborted by Rust panic: ${runtimeError.message || runtimeError}`,
+        `Execution failed: ${runtimeError.message || runtimeError}`,
       );
     }
   } else {
