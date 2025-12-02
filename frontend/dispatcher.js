@@ -29,10 +29,10 @@ export async function runSolution(year, day, part, input) {
   const dayStr = String(day).padStart(2, "0");
   const name = `solution_${year}_${dayStr}_${part}`;
 
-  const isSuccess = await loadSolution(year, day, part);
+  const isLoaded = await loadSolution(year, day, part);
 
-  if (!isSuccess) {
-    return "Not yet implemented";
+  if (!isLoaded) {
+    return "Unable to load solution";
   }
 
   const moduleExports = WASM_MODULE_CACHE.get(name);

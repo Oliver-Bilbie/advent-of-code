@@ -6,13 +6,13 @@ input.txt
 *.dylib
 *.test
 *.out
+*.wasm
 go.work
 **/target
-**/build
 **/Cargo.lock
-frontend/terraform/.terraform
-frontend/terraform/.terraform.lock.hcl
-frontend/terraform/terraform.tfvars
+**/.terraform
+**/.terraform.lock.hcl
+**/terraform.tfvars
 frontend/wasm
 /Cargo.toml
 .tool-versions

@@ -1,4 +1,5 @@
 use std::{
+    fmt,
     fs::{self, File},
     io::{BufWriter, Write},
     path::{Path, PathBuf},
@@ -10,6 +11,31 @@ use std::{
 enum Language {
     Rust,
     Go,
+    Missing,
+}
+
+impl fmt::Display for Language {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Language::Rust => "Rust 🦀",
+                Language::Go => "Go 🐹",
+                Language::Missing => "Not implemented",
+            }
+        )
+    }
+}
+
+impl Language {
+    const fn src_files(&self) -> &'static [&'static str] {
+        match self {
+            Language::Rust => &["src/lib.rs", "Cargo.toml"],
+            Language::Go => &["solution.go", "wasm.go", "go.mod"],
+            Language::Missing => &[],
+        }
+    }
 }
 
 struct SolutionInfo {
@@ -18,13 +44,10 @@ struct SolutionInfo {
     language: Language,
 }
 
-const RUST_SOURCE_FILES: &[&str] = &["src/lib.rs", "Cargo.toml"];
-const GO_SOURCE_FILES: &[&str] = &["solution.go", "wasm.go", "go.mod"];
-
 fn main() {
     let project_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
-        .expect("must be inside /auto-gen")
+        .expect("must be inside /build_utils")
         .to_path_buf();
 
     let wasm_output_dir = project_root.join("frontend/wasm");
@@ -36,7 +59,7 @@ fn main() {
 
     build_solution_crates(&solution_paths, &wasm_output_dir);
 
-    println!("\n🎉 Successfully completed incremental WASM build.");
+    println!("\n🎉 Successfully completed WASM build.");
 }
 
 fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo> {
@@ -56,7 +79,7 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
                 } else if path.join("wasm.go").exists() {
                     Language::Go
                 } else {
-                    continue;
+                    Language::Missing
                 };
 
                 solution_paths.push(SolutionInfo {
@@ -76,7 +99,7 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
         for member in &rs_members {
             writeln!(root_file, "{}", member).unwrap();
         }
-        writeln!(root_file, "  \"aoc_utils\",\n  \"auto-gen\"\n]").unwrap();
+        writeln!(root_file, "  \"aoc_utils\",\n  \"build_utils\"\n]").unwrap();
         writeln!(root_file, "resolver = \"3\"").unwrap();
 
         writeln!(root_file, "\n[profile.release]").unwrap();
@@ -96,32 +119,31 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
     solution_paths
 }
 
-const fn get_source_files(language: &Language) -> &'static [&'static str] {
-    match language {
-        Language::Rust => RUST_SOURCE_FILES,
-        Language::Go => GO_SOURCE_FILES,
-    }
-}
-
 fn is_recompile_needed(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> bool {
-    let output_path = wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name));
+    let wasm_path = wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name));
+    let js_path = wasm_output_dir.join(format!("{}.js", solution_info.name));
     let solution_path = &solution_info.path;
-    let name = &solution_info.name;
+
+    // Case 0: No solution exists, and a js handler has already been created
+    if solution_info.language == Language::Missing && js_path.exists() {
+        return false;
+    }
 
     // Case 1: No WASM file currently exists
-    if !output_path.exists() {
-        println!("  - ➡️ Compiling {} (WASM file not found).", name);
+    if !wasm_path.exists() || !js_path.exists() {
         return true;
     }
 
     // Case 2: Source file is newer than WASM file
-    let wasm_mtime = fs::metadata(&output_path)
-        .and_then(|m| m.modified())
-        .expect("WASM file has no modification time");
+    let wasm_mtime = match fs::metadata(&wasm_path).and_then(|m| m.modified()) {
+        Ok(val) => val,
+        Err(_) => {
+            // WASM file has no modified time data so let's recompile it to be safe
+            return true;
+        }
+    };
 
-    let source_files = get_source_files(&solution_info.language);
-
-    for file_name in source_files {
+    for file_name in solution_info.language.src_files() {
         let source_path = solution_path.join(file_name);
 
         if !source_path.exists() {
@@ -133,7 +155,6 @@ fn is_recompile_needed(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> 
             .unwrap_or(SystemTime::UNIX_EPOCH);
 
         if source_mtime > wasm_mtime {
-            println!("  - ➡️ Recompiling {} ({} modified).", name, file_name);
             return true;
         }
     }
@@ -158,6 +179,7 @@ fn get_build_commands(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> V
 
             vec![wasm_pack_cmd]
         }
+
         Language::Go => {
             let mut go_cmd = Command::new("tinygo");
             go_cmd
@@ -191,14 +213,33 @@ fn get_build_commands(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> V
 
             vec![go_cmd, js_wrapper_cmd, js_glue_cmd]
         }
+
+        Language::Missing => {
+            let mut js_handler_cmd = Command::new("cp");
+            js_handler_cmd
+                .arg("-n")
+                .arg(format!(
+                    "{}/missing_template.js",
+                    env!("CARGO_MANIFEST_DIR")
+                ))
+                .arg(format!(
+                    "{}/{}.js",
+                    wasm_output_dir.display(),
+                    solution_info.name
+                ));
+
+            vec![js_handler_cmd]
+        }
     }
 }
 
 fn build_solution_crates(solution_paths: &[SolutionInfo], wasm_output_dir: &Path) {
-    println!("\n📦 Starting WASM compilation (Incremental)...");
+    println!("\n📦 Starting WASM compilation...");
 
     for info in solution_paths {
         if is_recompile_needed(info, wasm_output_dir) {
+            println!("  - ➡️ Compiling {}", info.name);
+
             let mut commands = get_build_commands(info, wasm_output_dir);
 
             for command in &mut commands {
@@ -207,14 +248,7 @@ fn build_solution_crates(solution_paths: &[SolutionInfo], wasm_output_dir: &Path
                     .expect(&format!("Failed to execute builder for {}", info.name));
 
                 if !output.status.success() {
-                    eprintln!(
-                        "❌ Build failed for {} ({}):",
-                        info.name,
-                        match info.language {
-                            Language::Rust => "Rust",
-                            Language::Go => "Go",
-                        }
-                    );
+                    eprintln!("❌ Build failed for {} ({}):", info.name, info.language,);
                     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
                     panic!("Build failed.");
                 }
@@ -222,11 +256,7 @@ fn build_solution_crates(solution_paths: &[SolutionInfo], wasm_output_dir: &Path
 
             println!(
                 "  - ✅ Successfully built {} ({}).",
-                info.name,
-                match info.language {
-                    Language::Rust => "Rust",
-                    Language::Go => "Go",
-                }
+                info.name, info.language
             );
         }
     }
