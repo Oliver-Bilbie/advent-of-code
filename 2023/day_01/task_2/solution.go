@@ -91,7 +91,6 @@ func Solve(input string) string {
 		var first_number uint8 = find_first_num(line_data)
 		var last_number uint8 = find_last_num(line_data)
 		var calibration_value uint8 = 10*first_number + last_number
-		fmt.Printf("%s has been evaluated to %d\n", line_data, calibration_value)
 		calibration_value_sum += uint64(calibration_value)
 	}
 
