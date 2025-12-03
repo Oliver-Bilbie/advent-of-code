@@ -32,7 +32,8 @@ export async function runSolution(year, day, part, input) {
   const isLoaded = await loadSolution(year, day, part);
 
   if (!isLoaded) {
-    return "Unable to load solution";
+    console.error(`Solver module ${name} could not be loaded`);
+    throw new Error("Unable to load solution");
   }
 
   const moduleExports = WASM_MODULE_CACHE.get(name);
@@ -41,11 +42,10 @@ export async function runSolution(year, day, part, input) {
     try {
       return moduleExports.solve(input);
     } catch (runtimeError) {
-      throw new Error(
-        `Execution failed: ${runtimeError.message || runtimeError}`,
-      );
+      throw new Error(runtimeError.message || runtimeError);
     }
   } else {
-    throw new Error(`Solver function 'solve' not found in module ${name}.`);
+    console.error(`Solver function not found in module ${name}`);
+    throw new Error("Unable to load solution");
   }
 }

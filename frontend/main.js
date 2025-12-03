@@ -1,115 +1,112 @@
+import {
+  getYear,
+  getDay,
+  getInput,
+  setRunning,
+  setStopped,
+  setOutput,
+  setDone,
+  setReset,
+} from "./form.js";
+
+let worker = newWorker();
+
 async function start() {
   const yearSelect = document.getElementById("year-select");
   const daySelect = document.getElementById("day-select");
-  const inputField = document.getElementById("input");
   const runButton = document.getElementById("run-btn");
   const stopButton = document.getElementById("stop-btn");
   const resetButton = document.getElementById("reset-btn");
-  const output1 = document.getElementById("output-part-1");
-  const output2 = document.getElementById("output-part-2");
-  const outputContainer = document.getElementById("output-container");
-
-  let worker = newWorker();
 
   runButton.addEventListener("click", () => {
-    const year = parseInt(yearSelect.value, 10);
-    const day = parseInt(daySelect.value, 10);
-    const input = inputField.value;
-
-    output1.textContent = "Processing...";
-    output2.textContent = "Queued";
-    outputContainer.style.visibility = "visible";
-    stopButton.disabled = false;
-    resetButton.disabled = true;
-
-    worker.postMessage({ event: "run", year, day, part: 1, input });
+    setRunning(1);
+    worker.postMessage({
+      event: "run",
+      year: getYear(),
+      day: getDay(),
+      part: 1,
+      input: getInput(),
+    });
   });
 
   stopButton.onclick = () => {
     if (worker) {
+      setStopped();
       worker.terminate();
-      if (output1.textContent === "Processing...") {
-        output1.textContent = "Execution stopped.";
-        output2.textContent = "Execution stopped.";
-      } else if (output2.textContent === "Processing...") {
-        output2.textContent = "Execution stopped.";
-      }
-      stopButton.disabled = true;
-      resetButton.disabled = false;
-      worker = newWorker();
     }
+    worker = newWorker();
   };
 
-  resetButton.onclick = () => {
-    inputField.value = "";
-    outputContainer.style.visibility = "hidden";
-    output1.textContent = "";
-    output2.textContent = "";
-  };
+  resetButton.onclick = setReset;
 
+  // pre-load WASM when a year/day is selected
   yearSelect.addEventListener("change", triggerWasmLoad);
   daySelect.addEventListener("change", triggerWasmLoad);
-
+  // pre-load WASM on page load for the default year/day
   document.addEventListener("DOMContentLoaded", () => {
-    if (yearSelect.value && daySelect.value) {
-      triggerWasmLoad();
-    }
+    triggerWasmLoad();
   });
+}
 
-  function triggerWasmLoad() {
-    const year = parseInt(yearSelect.value, 10);
-    const day = parseInt(daySelect.value, 10);
-    worker.postMessage({ event: "load", year, day, part: 1 });
-    worker.postMessage({ event: "load", year, day, part: 2 });
+function triggerWasmLoad() {
+  for (const part of [1, 2]) {
+    worker.postMessage({
+      event: "load",
+      year: getYear(),
+      day: getDay(),
+      part: part,
+    });
   }
+}
 
-  function newWorker() {
-    const w = new Worker("worker.js", { type: "module" });
-    w.postMessage({ event: "init" });
+function newWorker() {
+  const w = new Worker("worker.js", { type: "module" });
+  w.postMessage({ event: "init" });
 
-    w.onmessage = (e) => {
-      const { event, part, result, message } = e.data;
+  w.onmessage = (e) => {
+    const { event, part, result, message } = e.data;
 
-      if (event === "result") {
-        if (part === 1) {
-          output1.textContent = result;
-          output2.textContent = "Processing...";
-          w.postMessage({
-            event: "run",
-            year: parseInt(yearSelect.value, 10),
-            day: parseInt(daySelect.value, 10),
-            part: 2,
-            input: inputField.value,
-          });
-        } else if (part === 2) {
-          output2.textContent = result;
-          stopButton.disabled = true;
-          resetButton.disabled = false;
-        }
+    if (event === "result") {
+      if (part === 1) {
+        setOutput(1, result, "#009900");
+        setRunning(2);
+        w.postMessage({
+          event: "run",
+          year: getYear(),
+          day: getDay(),
+          part: 2,
+          input: getInput(),
+        });
+      } else if (part === 2) {
+        setOutput(2, result, "#009900");
+        setDone();
+      } else {
+        console.error(`Invalid part: ${part}`);
+      }
+    }
+
+    if (event === "error") {
+      const msg = `An error has occurred while running the program.\nPlease check that the provided input is correct.\n\n${message}`;
+      if (part === 1) {
+        setOutput(1, msg, "#ff0000");
+        setOutput(2, "Cancelled", "#ffffff");
+      } else if (part === 2) {
+        setOutput(2, msg, "#ff0000");
+      } else {
+        console.error(`Invalid part: ${part}`);
       }
 
-      if (event === "error") {
-        const msg = `An error has occurred while running the program.\nPlease check that the provided input is correct.\n\n${message}`;
-        if (part === 1) {
-          output1.textContent = msg;
-          output2.textContent = "Cancelled";
-        } else {
-          output2.textContent = msg;
-        }
-        stopButton.disabled = true;
-        resetButton.disabled = false;
-      }
-    };
+      setDone();
+    }
+  };
 
-    w.onerror = (e) => {
-      console.error("Worker error:", e.message);
-      output1.textContent = "Worker error occurred.";
-      stopButton.disabled = true;
-      resetButton.disabled = false;
-    };
+  w.onerror = (e) => {
+    console.error("Worker error:", e.message);
+    setOutput(1, "Worker error occurred", "#993399");
+    setDone();
+  };
 
-    return w;
-  }
+  return w;
 }
 
 start();

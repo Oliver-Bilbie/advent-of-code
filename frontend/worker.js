@@ -24,8 +24,7 @@ self.onmessage = async (e) => {
       self.postMessage({
         event: "error",
         part,
-        message:
-          error.message || "Unknown error during dynamic WASM execution.",
+        message: error.message,
       });
     }
     return;
