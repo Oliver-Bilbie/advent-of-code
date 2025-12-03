@@ -67,8 +67,6 @@ func findReplace(path, find, replace string) error {
 }
 
 func makeDirectory(year int, day int, language string) error {
-	// TODO: if rust, add to workspace?
-
 	init_utils_dir, err := os.Getwd()
 	if err != nil {
 		return err
@@ -112,6 +110,11 @@ func makeDirectory(year int, day int, language string) error {
 		})
 		if err != nil {
 			return err
+		}
+
+		if language == "Rust 🦀" {
+			workspace_cargo_path := root_dir + "/Cargo.toml"
+			doRustSetup(workspace_cargo_path, year, day)
 		}
 	}
 

@@ -2,6 +2,9 @@
 
 default: build terraform deploy
 
+new:
+	@cd init_utils && go run .
+
 run:
 	@cd frontend && npx http-server . -c-1
 
