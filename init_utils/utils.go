@@ -113,6 +113,11 @@ func makeDirectory(year int, day int, language string) error {
 		if err != nil {
 			return err
 		}
+
+		if language == "Rust 🦀" {
+			workspace_cargo_path := root_dir + "/Cargo.toml"
+			doRustSetup(workspace_cargo_path, year, day)
+		}
 	}
 
 	return nil

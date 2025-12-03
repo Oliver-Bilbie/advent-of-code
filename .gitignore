@@ -15,5 +15,4 @@ go.work
 **/terraform.tfvars
 **/go.sum
 frontend/wasm
-/Cargo.toml
 .tool-versions

@@ -1,7 +1,5 @@
 use std::{
-    fmt,
-    fs::{self, File},
-    io::{BufWriter, Write},
+    fmt, fs,
     path::{Path, PathBuf},
     process::Command,
     time::SystemTime,
@@ -63,7 +61,6 @@ fn main() {
 }
 
 fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo> {
-    let mut rs_members = vec![];
     let mut solution_paths = vec![];
 
     for year in 2023..=2025 {
@@ -74,7 +71,6 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
                 let name = format!("solution_{}_{:02}_{}", year, day, part);
 
                 let language = if path.join("src/lib.rs").exists() {
-                    rs_members.push(format!("  \"{}\",", rel_path));
                     Language::Rust
                 } else if path.join("wasm.go").exists() {
                     Language::Go
@@ -90,31 +86,6 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
             }
         }
     }
-
-    // Dynamic root Cargo.toml generation (for Rust workspace)
-    let root_cargo = project_root.join("Cargo.toml");
-    {
-        let mut root_file = BufWriter::new(File::create(root_cargo).unwrap());
-        writeln!(root_file, "[workspace]\nmembers = [").unwrap();
-        for member in &rs_members {
-            writeln!(root_file, "{}", member).unwrap();
-        }
-        writeln!(root_file, "  \"aoc_utils\",\n  \"build_utils\"\n]").unwrap();
-        writeln!(root_file, "resolver = \"3\"").unwrap();
-
-        writeln!(root_file, "\n[profile.release]").unwrap();
-        writeln!(root_file, "opt-level = \"z\"").unwrap(); // Optimize for size
-        writeln!(root_file, "lto = true").unwrap(); // Link-Time Optimization
-        writeln!(root_file, "codegen-units = 1").unwrap(); // Best LTO results
-        writeln!(root_file, "panic = \"abort\"").unwrap(); // Minimize code size
-
-        root_file.flush().unwrap();
-    }
-
-    println!(
-        "✅ Generated dynamic root Cargo.toml with {} Rust members.",
-        rs_members.len()
-    );
 
     solution_paths
 }
