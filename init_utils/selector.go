@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -140,10 +141,16 @@ func baseList(items []list.Item, title string) list.Model {
 }
 
 func newYearList() list.Model {
+	latest_year := time.Now().Year()
+	if time.Now().Month() != time.December {
+		latest_year -= 1
+	}
+
 	years := []list.Item{}
-	for y := 2022; y <= 2025; y++ {
+	for y := latest_year; y >= 2015; y-- {
 		years = append(years, item(fmt.Sprintf("%d", y)))
 	}
+
 	return baseList(years, "Select Year")
 }
 
@@ -152,7 +159,18 @@ func newDayList() list.Model {
 	for d := 1; d <= 25; d++ {
 		days = append(days, item(fmt.Sprintf("%d", d)))
 	}
-	return baseList(days, "Select Day")
+
+	l := baseList(days, "Select Day")
+	selected := 1
+
+	now := time.Now()
+	if now.Month() == time.December && now.Day() <= 12 {
+		selected = now.Day()
+	}
+
+	l.Select(selected)
+
+	return l
 }
 
 func newLangList() list.Model {
