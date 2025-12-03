@@ -54,10 +54,15 @@ func getPassword(input string) uint32 {
 		zeroes += add_zeroes
 	}
 
+	err := scanner.Err()
+	if err != nil {
+		fmt.Printf("[Warning] %s\n", err)
+	}
+
 	return zeroes
 }
 
 func Solve(input string) string {
 	password := getPassword(input)
-	return fmt.Sprintf("Answer: %d\n", password)
+	return fmt.Sprintf("The password is: %d\n", password)
 }

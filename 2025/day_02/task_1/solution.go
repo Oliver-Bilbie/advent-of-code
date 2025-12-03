@@ -68,5 +68,5 @@ func result(input string) uint64 {
 }
 
 func Solve(input string) string {
-	return fmt.Sprintf("Answer: %d\n", result(input))
+	return fmt.Sprintf("There are %d invalid IDs\n", result(input))
 }

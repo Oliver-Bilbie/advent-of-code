@@ -6,61 +6,57 @@ import (
 	"strings"
 )
 
+const BATTERY_COUNT = 12
+
+// since we only need a few values these are hard-coded to improve performance
+var pow10 = []uint64{1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000}
+
 func result(input string) uint64 {
 	scanner := bufio.NewScanner(strings.NewReader(input))
-	var total_joltage uint64 = 0
+	var total uint64 = 0
 
 	for scanner.Scan() {
-		var bank string = scanner.Text()
-		var joltages = [12]uint64{
-			numericCharToInt(bank[len(bank)-12]),
-			numericCharToInt(bank[len(bank)-11]),
-			numericCharToInt(bank[len(bank)-10]),
-			numericCharToInt(bank[len(bank)-9]),
-			numericCharToInt(bank[len(bank)-8]),
-			numericCharToInt(bank[len(bank)-7]),
-			numericCharToInt(bank[len(bank)-6]),
-			numericCharToInt(bank[len(bank)-5]),
-			numericCharToInt(bank[len(bank)-4]),
-			numericCharToInt(bank[len(bank)-3]),
-			numericCharToInt(bank[len(bank)-2]),
-			numericCharToInt(bank[len(bank)-1]),
+		bank := scanner.Text()
+
+		batteries := [BATTERY_COUNT]uint64{}
+		for i := range BATTERY_COUNT {
+			batteries[i] = numericCharToInt(bank[len(bank)-BATTERY_COUNT+i])
 		}
 
-		for i := len(bank) - 13; i >= 0; i-- {
-			value := numericCharToInt(bank[i])
+		for i := len(bank) - BATTERY_COUNT - 1; i >= 0; i-- {
+			jolts := numericCharToInt(bank[i])
 
-			for position, jolts := range joltages {
-				if value < jolts {
+			for position, current_jolts := range batteries {
+				if jolts < current_jolts {
 					break
 				}
 
-				// swap := jolts
-				joltages[position] = value
-				value = jolts
+				batteries[position] = jolts
+				jolts = current_jolts
 			}
 		}
 
-		for position, jolts := range joltages {
-			total_joltage += jolts * pow10(11-position)
+		for position, jolts := range batteries {
+			total += jolts * pow10[BATTERY_COUNT-position-1]
 		}
 	}
 
-	return total_joltage
+	err := scanner.Err()
+	if err != nil {
+		fmt.Printf("[Warning] %s\n", err)
+	}
+
+	return total
 }
 
 func numericCharToInt(c byte) uint64 {
-	return uint64(c - '0') // this is yucky but fast
-}
-
-func pow10(n int) uint64 {
-	var v uint64 = 1
-	for range n {
-		v *= 10
+	result := int(c - '0')
+	if result < 0 || result > 9 {
+		panic(fmt.Sprintf("[Error] unable to convert %c to an integer\n", c))
 	}
-	return v
+	return uint64(result)
 }
 
 func Solve(input string) string {
-	return fmt.Sprintf("Answer: %d\n", result(input))
+	return fmt.Sprintf("The total joltage is: %d\n", result(input))
 }
