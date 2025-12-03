@@ -66,6 +66,17 @@ func findReplace(path, find, replace string) error {
 	return os.WriteFile(path, []byte(content), 0644)
 }
 
+func touch(path string) error {
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL, 0644)
+	if err != nil {
+		if os.IsExist(err) {
+			return nil
+		}
+		return err
+	}
+	return f.Close()
+}
+
 func makeDirectory(year int, day int, language string) error {
 	init_utils_dir, err := os.Getwd()
 	if err != nil {
@@ -116,6 +127,15 @@ func makeDirectory(year int, day int, language string) error {
 			workspace_cargo_path := root_dir + "/Cargo.toml"
 			doRustSetup(workspace_cargo_path, year, day)
 		}
+	}
+
+	err = touch(day_dir + "/input.txt")
+	if err != nil {
+		return err
+	}
+	err = touch(day_dir + "/test_input.txt")
+	if err != nil {
+		return err
 	}
 
 	return nil
