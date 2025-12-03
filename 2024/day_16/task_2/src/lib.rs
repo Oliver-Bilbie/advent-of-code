@@ -4,6 +4,7 @@ use aoc_utils::{
     position::*,
 };
 use std::collections::HashSet;
+use wasm_bindgen::prelude::*;
 
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 struct Tile {
@@ -152,6 +153,7 @@ fn count_best_tiles(maze: &mut Maze) -> u64 {
     positions.len() as u64
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut maze = read_maze(&input);
     let best_tiles = count_best_tiles(&mut maze);

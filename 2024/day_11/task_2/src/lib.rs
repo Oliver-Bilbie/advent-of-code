@@ -1,4 +1,5 @@
 use memoize::memoize;
+use wasm_bindgen::prelude::*;
 
 fn read_stones(input: &str) -> Vec<u64> {
     input
@@ -44,6 +45,7 @@ fn calc_number_of_children(stone_value: u64, num_blinks: u8) -> u64 {
         .sum()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let stones = read_stones(&input);
     let num_blinks = 75;

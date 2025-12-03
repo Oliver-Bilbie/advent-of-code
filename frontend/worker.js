@@ -1,25 +1,33 @@
-let wasmModule = null;
+import { runSolution, loadSolution } from "./dispatcher.js";
 
 self.onmessage = async (e) => {
   const { event, year, day, part, input } = e.data;
 
-  if (event === "init" && !wasmModule) {
+  if (event === "init") {
+    return;
+  }
+
+  if (event === "load") {
     try {
-      const module = await import("./pkg/wasm_run.js");
-      await module.default(); // this is `init()`
-      wasmModule = module;
-    } catch (err) {
-      self.postMessage({ event: "error", message: "WASM init failed: " + err });
+      await loadSolution(year, day, part);
+    } catch (error) {
+      console.error(`Failed to load Day ${day} Part ${part}: ${error.message}`);
     }
     return;
   }
 
   if (event === "run") {
     try {
-      const result = wasmModule.run(year, day, part, input);
+      const result = await runSolution(year, day, part, input);
       self.postMessage({ event: "result", part, result });
-    } catch (err) {
-      self.postMessage({ event: "error", part, message: err.toString() });
+    } catch (error) {
+      self.postMessage({
+        event: "error",
+        part,
+        message:
+          error.message || "Unknown error during dynamic WASM execution.",
+      });
     }
+    return;
   }
 };

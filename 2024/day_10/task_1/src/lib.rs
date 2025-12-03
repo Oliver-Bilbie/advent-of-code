@@ -1,4 +1,5 @@
 use std::ops::Add;
+use wasm_bindgen::prelude::*;
 
 #[derive(Eq, PartialEq, Clone, Hash, Debug)]
 struct Position {
@@ -209,6 +210,7 @@ fn count_routes(map: Map) -> u64 {
         .sum()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let map = read_map(&input);
     let route_count = count_routes(map);

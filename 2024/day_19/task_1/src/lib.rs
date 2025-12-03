@@ -1,6 +1,7 @@
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::iter::FromIterator;
+use wasm_bindgen::prelude::*;
 
 #[derive(PartialEq, Eq, Hash, Debug)]
 enum Color {
@@ -95,6 +96,7 @@ fn pattern_is_valid(pattern: &[Color], towels: &HashSet<Towel>) -> bool {
         .is_some()
 }
 
+#[wasm_bindgen]
 pub fn solve(input_str: &str) -> String {
     let input = Input::from_str(&input_str);
     let valid_patterns = input

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use wasm_bindgen::prelude::*;
 
 #[derive(Clone, Debug)]
 struct Block {
@@ -91,6 +92,7 @@ fn compress_files(drive: &mut Drive) {
     }
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut disk = read_disk(&input);
     compress_files(&mut disk);

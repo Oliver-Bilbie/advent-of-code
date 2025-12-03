@@ -27,7 +27,7 @@ func adjustRight(current int, distance int) (position int, zeroes uint32) {
 	return
 }
 
-func Solve(input string) string {
+func getPassword(input string) uint32 {
 	scanner := bufio.NewScanner(strings.NewReader(input))
 
 	var zeroes uint32 = 0
@@ -54,5 +54,10 @@ func Solve(input string) string {
 		zeroes += add_zeroes
 	}
 
-	return fmt.Sprintf("Answer: %d\n", zeroes)
+	return zeroes
+}
+
+func Solve(input string) string {
+	password := getPassword(input)
+	return fmt.Sprintf("Answer: %d\n", password)
 }

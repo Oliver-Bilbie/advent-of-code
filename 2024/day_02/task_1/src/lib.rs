@@ -1,3 +1,6 @@
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let reports = read_reports(&input);
     let safe_reports = evaluate_safe_report_count(&reports);

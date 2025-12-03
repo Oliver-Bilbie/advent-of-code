@@ -1,8 +1,12 @@
 [package]
-name = "task_2"
+name = "solution_2023_16_2"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "solution_2023_16_2"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
 
 [dependencies]
+wasm-bindgen = "0.2.100"

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use wasm_bindgen::prelude::*;
 
 fn read_pages(input: &str) -> HashMap<u8, Vec<u8>> {
     let mut pages: HashMap<u8, Vec<u8>> = HashMap::new();
@@ -85,6 +86,7 @@ fn find_middle_page(report: &Vec<u8>) -> u8 {
     report[(report.len() - 1) / 2]
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let pages = read_pages(&input);
     let mut reports = read_reports(&input);
@@ -199,7 +201,8 @@ mod tests {
     fn it_solves_the_example() {
         let input = read_test_input();
         let actual_solution = solve(&input);
-        let expected_solution = "The sum of the middle page numbers of fixed invalid reports is 123";
+        let expected_solution =
+            "The sum of the middle page numbers of fixed invalid reports is 123";
         assert_eq!(actual_solution, expected_solution);
     }
 }

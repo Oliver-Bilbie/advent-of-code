@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
+use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     return format!("The maximum number of bananas is: {}", max_bananas(input));
 }

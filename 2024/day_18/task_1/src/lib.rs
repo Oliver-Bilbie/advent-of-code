@@ -4,6 +4,7 @@ use aoc_utils::{
     position::*,
 };
 use std::collections::HashSet;
+use wasm_bindgen::prelude::*;
 
 fn find_minimum_distance(graph: &mut Graph<Position>, boundary: &Position) -> Option<u128> {
     let start = Position { row: 0, column: 0 };
@@ -61,6 +62,7 @@ fn solve_with_parameters(input: &str, corrupted_bytes: usize, boundary: Position
     find_minimum_distance(&mut graph, &boundary).expect("no path was found")
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let corrupted_bytes = 1024;
     let boundary = Position {

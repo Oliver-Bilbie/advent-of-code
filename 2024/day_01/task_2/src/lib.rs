@@ -1,5 +1,7 @@
 use std::collections::HashMap;
+use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let left_values = read_left_values(&input);
     let right_values = read_right_values(&input);

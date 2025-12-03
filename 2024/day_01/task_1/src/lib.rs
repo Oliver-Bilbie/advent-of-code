@@ -1,3 +1,6 @@
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut left_values = read_left_values(input);
     let mut right_values = read_right_values(input);

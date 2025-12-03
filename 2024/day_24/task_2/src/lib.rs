@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+use wasm_bindgen::prelude::*;
 
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 enum Gate {
@@ -15,6 +16,7 @@ struct Instruction {
     output: String,
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let instructions = parse_instructions(input);
     let swapped = find_swapped_wires(&instructions);

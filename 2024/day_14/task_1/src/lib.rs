@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 #[derive(Debug)]
 struct Position {
     x: i32,
@@ -72,6 +74,7 @@ fn solve_for_boundary(input: &str, boundary: &Position) -> u64 {
     calculate_safety_factor(&robots, &boundary)
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let boundary = Position { x: 101, y: 103 };
     let safety_factor = solve_for_boundary(&input, &boundary);

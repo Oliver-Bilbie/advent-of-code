@@ -1,3 +1,5 @@
+use wasm_bindgen::prelude::*;
+
 fn read_disk(input: &str) -> Vec<Option<usize>> {
     let mut disk: Vec<Option<usize>> = vec![];
 
@@ -49,6 +51,7 @@ fn compress_files(disk: &mut [Option<usize>]) {
     }
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut disk = read_disk(&input);
     compress_files(&mut disk);

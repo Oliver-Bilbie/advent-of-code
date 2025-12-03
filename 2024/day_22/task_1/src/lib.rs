@@ -1,3 +1,6 @@
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let result = input.lines().fold(0, |acc, l| {
         acc + nth_secret_number(l.parse().unwrap(), 2000)

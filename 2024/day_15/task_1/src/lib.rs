@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use wasm_bindgen::prelude::*;
 
 #[derive(PartialEq, Clone, Debug)]
 struct Position {
@@ -213,6 +214,7 @@ fn sum_all_gps(warehouse: &Warehouse) -> u64 {
         .sum()
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut warehouse = read_warehouse(&input);
     while warehouse.directions.len() > 0 {
