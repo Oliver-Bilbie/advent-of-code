@@ -22,4 +22,5 @@ This repository expects these files to be available in the location `/year/day_n
 
 #### Go
 
-- To run the solution, navigate to the directory `/year/day_n/` and run the command `go run task_m.go`.
+- **To run the solution:** navigate to the directory `/year/day_n/task_m/` and run the command `go run .`.
+- **To run the tests:** navigate to the directory `/year/day_n/task_m/` and run the command `go test`.
