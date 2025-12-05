@@ -8,14 +8,14 @@ import (
 )
 
 type Range struct {
-	first uint
-	last  uint
+	first uint64
+	last  uint64
 }
 
-func readInput(input string) (ranges []Range, ids []uint) {
+func readInput(input string) (ranges []Range, ids []uint64) {
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	ranges = []Range{}
-	ids = []uint{}
+	ids = []uint64{}
 
 	// Read ranges
 	for scanner.Scan() {
@@ -28,25 +28,25 @@ func readInput(input string) (ranges []Range, ids []uint) {
 		if !found {
 			panic(fmt.Sprintf("%s is not a valid range (no separator)", line))
 		}
-		first, first_err := strconv.ParseUint(first_str, 10, 0)
-		last, last_err := strconv.ParseUint(last_str, 10, 0)
+		first, first_err := strconv.ParseUint(first_str, 10, 64)
+		last, last_err := strconv.ParseUint(last_str, 10, 64)
 		if first_err != nil || last_err != nil {
 			panic(fmt.Sprintf("%s is not a valid range (not integers)", line))
 		}
 
-		ranges = append(ranges, Range{uint(first), uint(last)})
+		ranges = append(ranges, Range{first, last})
 	}
 
 	// read ids
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		id, err := strconv.ParseUint(line, 10, 0)
+		id, err := strconv.ParseUint(line, 10, 64)
 		if err != nil {
 			panic(fmt.Sprintf("%s is not a valid id", line))
 		}
 
-		ids = append(ids, uint(id))
+		ids = append(ids, id)
 	}
 
 	err := scanner.Err()
@@ -59,7 +59,7 @@ func readInput(input string) (ranges []Range, ids []uint) {
 
 func result(input string) uint64 {
 	ranges, ids := readInput(input)
-	total_fresh := 0
+	var total_fresh uint64 = 0
 
 	for _, id := range ids {
 		for _, rng := range ranges {
@@ -70,9 +70,9 @@ func result(input string) uint64 {
 		}
 	}
 
-	return uint64(total_fresh)
+	return total_fresh
 }
 
 func Solve(input string) string {
-	return fmt.Sprintf("Answer: %d\n", result(input))
+	return fmt.Sprintf("%d available ingredients are fresh\n", result(input))
 }
