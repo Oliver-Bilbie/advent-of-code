@@ -5,7 +5,9 @@ const runButton = document.getElementById("run-btn");
 const stopButton = document.getElementById("stop-btn");
 const resetButton = document.getElementById("reset-btn");
 const output1 = document.getElementById("output-part-1");
+const details1 = document.getElementById("details-part-1");
 const output2 = document.getElementById("output-part-2");
+const details2 = document.getElementById("details-part-2");
 const outputContainer = document.getElementById("output-container");
 
 export function getYear() {
@@ -24,8 +26,10 @@ export function setRunning(part) {
   if (part === 1) {
     setOutput(1, "Processing...", "#ffffff");
     setOutput(2, "Queued", "#ffffff");
+    clearDetails(1);
   } else if (part === 2) {
     setOutput(2, "Processing...", "#ffffff");
+    clearDetails(2);
   } else {
     console.error(`Invalid part: ${part}`);
   }
@@ -43,6 +47,17 @@ export function setOutput(part, message, color) {
   } else if (part === 2) {
     output2.textContent = message;
     output2.style.borderLeftColor = color;
+  } else {
+    console.error(`Invalid part: ${part}`);
+  }
+}
+
+export function setDetails(part, time) {
+  const message = `Time taken: ${time}ms`;
+  if (part === 1) {
+    details1.textContent = message;
+  } else if (part === 2) {
+    details2.textContent = message;
   } else {
     console.error(`Invalid part: ${part}`);
   }
@@ -69,9 +84,21 @@ export function setStopped() {
   setDone();
 }
 
+export function clearDetails(part) {
+  if (part === 1) {
+    details1.textContent = "";
+  } else if (part === 2) {
+    details2.textContent = "";
+  } else {
+    console.error(`Invalid part: ${part}`);
+  }
+}
+
 export function setReset() {
   inputField.value = "";
   outputContainer.style.visibility = "hidden";
   setOutput(1, "", "#ffffff");
   setOutput(2, "", "#ffffff");
+  clearDetails(1);
+  clearDetails(2);
 }

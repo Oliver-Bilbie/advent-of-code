@@ -18,8 +18,13 @@ self.onmessage = async (e) => {
 
   if (event === "run") {
     try {
-      const result = await runSolution(year, day, part, input);
-      self.postMessage({ event: "result", part, result });
+      const response = await runSolution(year, day, part, input);
+      self.postMessage({
+        event: "result",
+        part,
+        result: response.result,
+        time: response.time,
+      });
     } catch (error) {
       self.postMessage({
         event: "error",

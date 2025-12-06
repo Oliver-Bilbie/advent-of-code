@@ -7,6 +7,7 @@ import {
   setOutput,
   setDone,
   setReset,
+  setDetails,
 } from "./form.js";
 
 let worker = newWorker();
@@ -64,11 +65,13 @@ function newWorker() {
   w.postMessage({ event: "init" });
 
   w.onmessage = (e) => {
-    const { event, part, result, message } = e.data;
+    const { event, part, result, time, message } = e.data;
 
     if (event === "result") {
+      setOutput(part, result, "#009900");
+      setDetails(part, time);
+
       if (part === 1) {
-        setOutput(1, result, "#009900");
         setRunning(2);
         w.postMessage({
           event: "run",
@@ -78,7 +81,6 @@ function newWorker() {
           input: getInput(),
         });
       } else if (part === 2) {
-        setOutput(2, result, "#009900");
         setDone();
       } else {
         console.error(`Invalid part: ${part}`);
