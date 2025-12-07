@@ -8,6 +8,7 @@ import {
   setDone,
   setReset,
   setDetails,
+  clearDetails,
 } from "./form.js";
 
 let worker = newWorker();
@@ -65,11 +66,16 @@ function newWorker() {
   w.postMessage({ event: "init" });
 
   w.onmessage = (e) => {
-    const { event, part, result, time, message } = e.data;
+    const { event, part, result, time, language, message } = e.data;
 
     if (event === "result") {
-      setOutput(part, result, "#009900");
-      setDetails(part, time);
+      if (language !== "None") {
+        setOutput(part, result, "#009900");
+        setDetails(part, time, language);
+      } else {
+        setOutput(part, result, "#ffffff");
+        clearDetails(part);
+      }
 
       if (part === 1) {
         setRunning(2);

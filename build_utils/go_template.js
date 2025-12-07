@@ -24,3 +24,7 @@ export default async function init() {
 export function solve(input) {
   return globalThis["__SOLVER_NAME__"](input);
 }
+
+export function language() {
+  return "Go 🐹";
+}

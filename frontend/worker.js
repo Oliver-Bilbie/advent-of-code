@@ -24,6 +24,7 @@ self.onmessage = async (e) => {
         part,
         result: response.result,
         time: response.time,
+        language: response.language,
       });
     } catch (error) {
       self.postMessage({

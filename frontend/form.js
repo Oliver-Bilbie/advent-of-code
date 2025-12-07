@@ -52,8 +52,8 @@ export function setOutput(part, message, color) {
   }
 }
 
-export function setDetails(part, time) {
-  const message = `Time taken: ${time}ms`;
+export function setDetails(part, time, language) {
+  const message = `Time taken: ${time}ms   -   Language: ${language}`;
   if (part === 1) {
     details1.textContent = message;
   } else if (part === 2) {

@@ -148,7 +148,15 @@ fn get_build_commands(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> V
                 .arg("--out-name")
                 .arg(&solution_info.name);
 
-            vec![wasm_pack_cmd]
+            let mut append_lang_cmd = Command::new("sh");
+            append_lang_cmd.arg("-c").arg(format!(
+                "printf '{}' >> {}/{}.js",
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/rust_template.js")),
+                wasm_output_dir.to_string_lossy(),
+                solution_info.name
+            ));
+
+            vec![wasm_pack_cmd, append_lang_cmd]
         }
 
         Language::Go => {

@@ -13,6 +13,9 @@ terraform:
 
 build:
 	@cargo run --manifest-path build_utils/Cargo.toml
+	@rm -rf build
+	@cp frontend build
+	@cd build/wasm && minify
 
 deploy:
 	@echo "[INFO] Uploading client files"
