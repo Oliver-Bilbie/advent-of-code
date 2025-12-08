@@ -98,6 +98,7 @@ function newWorker() {
       if (part === 1) {
         setOutput(1, msg, "#ff0000");
         setOutput(2, "Cancelled", "#ffffff");
+        clearDetails(2);
       } else if (part === 2) {
         setOutput(2, msg, "#ff0000");
       } else {
