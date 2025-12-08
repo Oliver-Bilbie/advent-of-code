@@ -5,3 +5,7 @@ export default async function init() {
 export function solve(_) {
   return "Not yet implemented";
 }
+
+export function language() {
+  return "None";
+}

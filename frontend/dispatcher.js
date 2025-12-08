@@ -40,7 +40,16 @@ export async function runSolution(year, day, part, input) {
 
   if (typeof moduleExports.solve === "function") {
     try {
-      return moduleExports.solve(input);
+      const startTime = performance.now();
+      const result = moduleExports.solve(input);
+      const time = performance.now() - startTime;
+      const language = moduleExports.language();
+
+      return {
+        result,
+        time,
+        language,
+      };
     } catch (runtimeError) {
       throw new Error(runtimeError.message || runtimeError);
     }
