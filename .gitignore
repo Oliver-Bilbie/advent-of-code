@@ -16,3 +16,5 @@ go.work
 **/go.sum
 frontend/wasm
 .tool-versions
+build
+**/node_modules
