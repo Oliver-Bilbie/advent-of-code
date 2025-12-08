@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use wasm_bindgen::prelude::*;
 
 #[derive(Clone, PartialEq)]
 enum Card {
@@ -227,6 +228,7 @@ impl Hand {
     }
 }
 
+#[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut hands: Vec<Hand> = Vec::new();
     let mut total_wininings: u64 = 0;
