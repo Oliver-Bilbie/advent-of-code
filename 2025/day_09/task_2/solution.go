@@ -100,26 +100,34 @@ func isValidRectange(p1, p2 Point, xBounds, yBounds map[uint32][2]uint32) bool {
 		end.y = p1.y
 	}
 
-	for x := start.x + 1; x < end.x; x++ {
-		yRange, isBoundary := xBounds[x]
-		if isBoundary && start.y >= yRange[0] && start.y < yRange[1] {
+	for x, yRange := range xBounds {
+		isCrossed := x > start.x && x < end.x
+
+		if !isCrossed {
+			continue
+		}
+
+		if start.y >= yRange[0] && start.y < yRange[1] {
 			return false
 		}
 
-		yRange, isBoundary = xBounds[x]
-		if isBoundary && end.y > yRange[0] && end.y <= yRange[1] {
+		if end.y > yRange[0] && end.y <= yRange[1] {
 			return false
 		}
 	}
 
-	for y := start.y + 1; y < end.y; y++ {
-		xRange, isBoundary := yBounds[y]
-		if isBoundary && start.x >= xRange[0] && start.x < xRange[1] {
+	for y, xRange := range yBounds {
+		isCrossed := y > start.y && y < end.y
+
+		if !isCrossed {
+			continue
+		}
+
+		if start.x >= xRange[0] && start.x < xRange[1] {
 			return false
 		}
 
-		xRange, isBoundary = yBounds[y]
-		if isBoundary && end.x > xRange[0] && end.x <= xRange[1] {
+		if end.x > xRange[0] && end.x <= xRange[1] {
 			return false
 		}
 	}
