@@ -77,6 +77,7 @@ members = [
   "2024/day_24/task_2",
   "2024/day_25/task_1",
   "2024/day_25/task_2",
+  "2025/day_10/task_2",
   "aoc_utils",
   "build_utils",
 ]

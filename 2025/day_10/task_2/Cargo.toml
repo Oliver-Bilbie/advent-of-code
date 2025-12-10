@@ -1,0 +1,13 @@
+[package]
+name = "solution_2025_10_2"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "solution_2025_10_2"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+microlp = "0.2.11"
+wasm-bindgen = "0.2.100"
