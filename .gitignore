@@ -18,3 +18,4 @@ frontend/wasm
 .tool-versions
 build
 **/node_modules
+**/__pycache__
