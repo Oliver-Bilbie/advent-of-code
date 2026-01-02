@@ -9,6 +9,7 @@ use std::{
 enum Language {
     Rust,
     Go,
+    Python,
     Missing,
 }
 
@@ -20,6 +21,7 @@ impl fmt::Display for Language {
             match self {
                 Language::Rust => "Rust 🦀",
                 Language::Go => "Go 🐹",
+                Language::Python => "Python 🐍",
                 Language::Missing => "Not implemented",
             }
         )
@@ -31,6 +33,7 @@ impl Language {
         match self {
             Language::Rust => &["src/lib.rs", "Cargo.toml"],
             Language::Go => &["solution.go", "wasm.go", "go.mod"],
+            Language::Python => &["solution.py"],
             Language::Missing => &[],
         }
     }
@@ -63,7 +66,7 @@ fn main() {
 fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo> {
     let mut solution_paths = vec![];
 
-    for year in 2023..=2025 {
+    for year in 2015..=2025 {
         for day in 1..=25 {
             for part in 1..=2 {
                 let rel_path = format!("{}/day_{:02}/task_{}", year, day, part);
@@ -74,6 +77,8 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
                     Language::Rust
                 } else if path.join("wasm.go").exists() {
                     Language::Go
+                } else if path.join("solution.py").exists() {
+                    Language::Python
                 } else {
                     Language::Missing
                 };
@@ -191,6 +196,29 @@ fn get_build_commands(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> V
             ));
 
             vec![go_cmd, js_wrapper_cmd, js_glue_cmd]
+        }
+
+        Language::Python => {
+            let mut cp_script_cmd = Command::new("cp");
+            cp_script_cmd
+                .arg(&solution_info.path.join("solution.py"))
+                .arg(format!(
+                    "{}/{}.py",
+                    wasm_output_dir.display(),
+                    solution_info.name
+                ));
+
+            let mut js_wrapper_cmd = Command::new("sh");
+            js_wrapper_cmd.arg("-c").arg(format!(
+                "sed \
+                    -e 's&__SCRIPT_PATH__&wasm/{name}.py&g' \
+                    {template} > {outdir}/{name}.js",
+                name = solution_info.name,
+                template = format!("{}/python_template.js", env!("CARGO_MANIFEST_DIR")),
+                outdir = wasm_output_dir.display(),
+            ));
+
+            vec![cp_script_cmd, js_wrapper_cmd]
         }
 
         Language::Missing => {

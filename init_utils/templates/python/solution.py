@@ -3,5 +3,5 @@ def solve(input_file: str) -> str:
 
 
 def result(input_file: str) -> int:
-    print(f"Recieved input:\n{input_file}")
+    print(f"Received input:\n{input_file}")
     return 123
