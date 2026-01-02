@@ -91,6 +91,8 @@ func makeDirectory(year int, day int, language string) error {
 		template_dir += "/rust"
 	case "Go 🐹":
 		template_dir += "/go"
+	case "Python 🐍":
+		template_dir += "/python"
 	default:
 		return fmt.Errorf("invalid language: %s", language)
 	}

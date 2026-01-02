@@ -177,6 +177,7 @@ func newLangList() list.Model {
 	langs := []list.Item{
 		item("Rust 🦀"),
 		item("Go 🐹"),
+		item("Python 🐍"),
 	}
 	return baseList(langs, "Select Language")
 }
