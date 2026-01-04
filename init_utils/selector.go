@@ -161,7 +161,7 @@ func newDayList() list.Model {
 	}
 
 	l := baseList(days, "Select Day")
-	selected := 1
+	selected := 0
 
 	now := time.Now()
 	if now.Month() == time.December && now.Day() <= 12 {
