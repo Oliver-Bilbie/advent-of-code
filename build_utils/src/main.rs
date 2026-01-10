@@ -53,14 +53,14 @@ fn main() {
 
     let wasm_output_dir = project_root.join("frontend/wasm");
     if !wasm_output_dir.exists() {
-        fs::create_dir_all(&wasm_output_dir).expect("Failed to create WASM output directory");
+        fs::create_dir_all(&wasm_output_dir).expect("Failed to create output directory");
     }
 
     let solution_paths = scan_solutions_and_generate_manifest(&project_root);
 
     build_solution_crates(&solution_paths, &wasm_output_dir);
 
-    println!("\n🎉 Successfully completed WASM build.");
+    println!("\n🎉 Successfully completed build");
 }
 
 fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo> {
@@ -96,25 +96,26 @@ fn scan_solutions_and_generate_manifest(project_root: &Path) -> Vec<SolutionInfo
 }
 
 fn is_recompile_needed(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> bool {
-    let wasm_path = wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name));
-    let js_path = wasm_output_dir.join(format!("{}.js", solution_info.name));
+    let output_path = match solution_info.language {
+        Language::Rust | Language::Go => {
+            wasm_output_dir.join(format!("{}_bg.wasm", solution_info.name))
+        }
+        Language::Python => wasm_output_dir.join(format!("{}.py", solution_info.name)),
+        Language::Missing => wasm_output_dir.join(format!("{}.js", solution_info.name)),
+    };
+    let glue_path = wasm_output_dir.join(format!("{}.js", solution_info.name));
     let solution_path = &solution_info.path;
 
-    // Case 0: No solution exists, and a js handler has already been created
-    if solution_info.language == Language::Missing && js_path.exists() {
-        return false;
-    }
-
-    // Case 1: No WASM file currently exists
-    if !wasm_path.exists() || !js_path.exists() {
+    // Case 1: No output file currently exists
+    if !output_path.exists() || !glue_path.exists() {
         return true;
     }
 
-    // Case 2: Source file is newer than WASM file
-    let wasm_mtime = match fs::metadata(&wasm_path).and_then(|m| m.modified()) {
+    // Case 2: Source file is newer than existing file
+    let wasm_mtime = match fs::metadata(&output_path).and_then(|m| m.modified()) {
         Ok(val) => val,
         Err(_) => {
-            // WASM file has no modified time data so let's recompile it to be safe
+            // output file has no modified time data so let's recompile it to be safe
             return true;
         }
     };
@@ -241,7 +242,7 @@ fn get_build_commands(solution_info: &SolutionInfo, wasm_output_dir: &Path) -> V
 }
 
 fn build_solution_crates(solution_paths: &[SolutionInfo], wasm_output_dir: &Path) {
-    println!("\n📦 Starting WASM compilation...");
+    println!("\n📦 Starting build...");
 
     for info in solution_paths {
         if is_recompile_needed(info, wasm_output_dir) {

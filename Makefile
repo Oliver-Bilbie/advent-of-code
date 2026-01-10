@@ -1,6 +1,6 @@
 .PHONY: build run terraform
 
-default: build minify terraform deploy
+default: build terraform deploy
 
 new:
 	@cd init_utils && go run .
@@ -8,13 +8,17 @@ new:
 run:
 	@cd frontend && npx http-server . -c-1
 
-terraform:
-	@cd ./terraform && terraform init && terraform apply
+terraform: terraform/.terraform
+	@cd terraform && terraform apply
+
+terraform/.terraform:
+	@echo "[INFO] Running terraform init"
+	@cd terraform && terraform init
 
 build:
 	@cargo run --manifest-path build_utils/Cargo.toml
 	@rm -rf build
-	@cp -r frontend build
+	@cp -a frontend build
 	@rm -r build/package.json build/package-lock.json build/node_modules
 
 minify:
