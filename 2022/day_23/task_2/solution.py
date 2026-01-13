@@ -122,4 +122,4 @@ def result(input_file: str) -> int:
 
 
 def solve(input_file: str) -> str:
-    return f"The first found where no Elf moves is {result(input_file)}"
+    return f"The first round where no Elf moves is {result(input_file)}"

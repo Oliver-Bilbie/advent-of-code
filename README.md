@@ -33,3 +33,22 @@ This repository expects these files to be available in the location `/year/day_n
 
 - **To run the solution:** navigate to the directory `/year/day_n/task_m/` and run the command `python main.py`.
 - **To run the tests:** navigate to the directory `/year/day_n/task_m/` and run the command `python -m unittest`.
+
+## Adding new solutions
+
+A TUI app for quickly bootstrapping a new solution is provided, and can be started by running `make new` from the root directory.
+
+## Building the web app
+
+This repository contains all of the necessary scripts to deploy the web app to AWS.
+To do so, provide a `terraform/terraform.tfvars` file containing the following:
+
+```
+region = "us-east-1"
+app_name = "aoc-solver"
+base_domain = "my-domain.com"
+full_domain = "aoc.my-domain.com"
+cert_arn = "arn:aws:acm:us-east-1:012345678912:certificate/b2124057-6e1e-4221-a127-66ff3a83a1e5"
+```
+
+and run the command `make` from the root directory.

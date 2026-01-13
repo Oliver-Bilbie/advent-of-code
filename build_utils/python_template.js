@@ -1,13 +1,16 @@
 import "https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.js";
 
 let ready;
-let pyodide;
 let script;
 
 export default async function init() {
   if (!ready) {
     ready = (async () => {
-      pyodide = await loadPyodide();
+      if (!globalThis.__pyodidePromise) {
+        globalThis.__pyodidePromise = loadPyodide();
+      }
+      globalThis.pyodide = await globalThis.__pyodidePromise;
+
       const response = await fetch("__SCRIPT_PATH__");
       script = await response.text();
       return true;
@@ -19,7 +22,7 @@ export default async function init() {
 
 export function solve(input) {
   const python = `${script}\nsolve(${JSON.stringify(input)})`;
-  return pyodide.runPython(python);
+  return globalThis.pyodide.runPython(python);
 }
 
 export function language() {
