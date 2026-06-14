@@ -16,7 +16,9 @@ impl TileContent {
             '|' => TileContent::VerticalSplitter,
             '-' => TileContent::HorizontalSplitter,
             '.' => TileContent::Empty,
-            _ => panic!("Invalid tile character"),
+            _ => {
+                panic!("Invalid tile character");
+            }
         }
     }
 }
@@ -263,7 +265,8 @@ mod tests {
 
     #[test]
     fn it_solves_the_example() {
-        let mut tiles = read_tiles("../test_input.txt");
+        let input = std::fs::read_to_string("../test_input.txt").unwrap();
+        let mut tiles = read_tiles(&input);
         let mut beams: Vec<Beam> = vec![Beam {
             position: Position { row: 0, column: 0 },
             direction: Direction::Right,

@@ -104,13 +104,17 @@ fn calculate_area(trench: &HashMap<i32, Vec<i32>>) -> u64 {
     for (row, columns) in trench {
         let mut is_inside = false;
 
-        let ranges = find_ranges(columns);
+        let mut sorted_columns = columns.clone();
+        sorted_columns.dedup();
+        sorted_columns.sort();
+        let ranges = find_ranges(&sorted_columns);
+
         for (i, range) in ranges.iter().enumerate() {
             // count trench tiles
             total_area += (1 + range.end - range.begin) as u64;
 
             // if we are inside of the lagoon, add the tiles between the ranges
-            if is_inside {
+            if is_inside && range.begin != ranges[i - 1].end {
                 total_area += (range.begin - ranges[i - 1].end - 1) as u64;
             }
 
@@ -121,7 +125,7 @@ fn calculate_area(trench: &HashMap<i32, Vec<i32>>) -> u64 {
         }
     }
 
-    return total_area;
+    return total_area - 1; // starting position is double-counted
 }
 
 fn result(input: &str) -> u64 {
@@ -175,11 +179,9 @@ mod tests {
             },
         ];
 
-        actual_instructions
-            .iter()
-            .zip(expected_instructions)
-            .for_each(|(actual, expected)| {
-                assert_eq!(*actual, expected);
-            });
+        assert_eq!(actual_instructions.len(), 14);
+        for i in 0..expected_instructions.len() {
+            assert_eq!(actual_instructions[i], expected_instructions[i]);
+        }
     }
 }

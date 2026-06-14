@@ -333,7 +333,8 @@ mod tests {
 
     #[test]
     fn it_solves_the_first_example() {
-        let mut tiles = read_tiles("../test_input.txt");
+        let input = std::fs::read_to_string("../test_input.txt").unwrap();
+        let mut tiles = read_tiles(&input);
         let mut beams: Vec<Beam> = vec![Beam {
             position: Position { row: 0, column: 0 },
             direction: Direction::Right,
@@ -349,7 +350,8 @@ mod tests {
 
     #[test]
     fn it_resets_all_tiles() {
-        let mut tiles = read_tiles("../test_input.txt");
+        let input = std::fs::read_to_string("../test_input.txt").unwrap();
+        let mut tiles = read_tiles(&input);
         let mut beams: Vec<Beam> = vec![Beam {
             position: Position { row: 0, column: 0 },
             direction: Direction::Right,
@@ -366,7 +368,8 @@ mod tests {
 
     #[test]
     fn it_solves_the_second_example() {
-        let mut tiles = read_tiles("../test_input.txt");
+        let input = std::fs::read_to_string("../test_input.txt").unwrap();
+        let mut tiles = read_tiles(&input);
         let grid_size = get_grid_size(&tiles);
         let mut max_energized_tiles = 0;
         for direction in [Direction::Right, Direction::Left] {

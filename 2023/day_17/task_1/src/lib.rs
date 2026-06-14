@@ -356,7 +356,8 @@ mod tests {
 
     #[test]
     fn it_reads_example_grid() {
-        let actual_blocks = read_blocks("../test_input.txt");
+        let input = std::fs::read_to_string("../test_input.txt").unwrap();
+        let actual_blocks = read_blocks(&input);
         let expected_grid = vec![
             vec![2, 4, 1, 3, 4, 3, 2, 3, 1, 1, 3, 2, 3],
             vec![3, 2, 1, 5, 4, 5, 3, 5, 3, 5, 6, 2, 3],
@@ -377,7 +378,8 @@ mod tests {
 
     #[test]
     fn it_reads_example_boundary() {
-        let actual_blocks = read_blocks("../test_input.txt");
+        let input = std::fs::read_to_string("../test_input.txt").unwrap();
+        let actual_blocks = read_blocks(&input);
         let expected_boundary = Position {
             row: 13,
             column: 13,
@@ -387,7 +389,8 @@ mod tests {
 
     #[test]
     fn it_solves_the_example() {
-        let blocks = read_blocks("../test_input.txt");
+        let input = std::fs::read_to_string("../test_input.txt").unwrap();
+        let blocks = read_blocks(&input);
         let actual_min_distance = minimum_distance(&blocks);
         let expected_min_distance = Some(102);
         assert_eq!(actual_min_distance, expected_min_distance);
