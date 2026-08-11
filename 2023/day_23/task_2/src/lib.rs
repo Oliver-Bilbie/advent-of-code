@@ -1,5 +1,6 @@
 use aoc_utils::{direction::Direction, position::Position};
 use std::cmp::max;
+use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
 
 const ALL_DIRECTIONS: [Direction; 4] = [
@@ -13,19 +14,13 @@ const ALL_DIRECTIONS: [Direction; 4] = [
 enum Terrain {
     Path,
     Forest,
-    Slope(Direction),
-}
-
-#[derive(Debug, Clone)]
-struct Tile {
-    terrain: Terrain,
-    is_visited: bool,
 }
 
 struct Maze {
-    tiles: Vec<Tile>,
+    tiles: Vec<Terrain>,
     bounds: Position,
-    end_tile: Position,
+    start: Position,
+    end: Position,
 }
 
 impl Maze {
@@ -36,77 +31,142 @@ impl Maze {
             row: row_count,
             column: row_len,
         };
-        let end_tile = Position {
+        let start = Position { row: 0, column: 1 };
+        let end = Position {
             row: row_count - 1,
             column: row_len - 2,
         };
-        let tiles: Vec<Tile> = input
+        let tiles: Vec<Terrain> = input
             .lines()
             .flat_map(|l| {
-                l.chars().map(|c| Tile {
-                    is_visited: false,
-                    terrain: match c {
-                        '.' => Terrain::Path,
-                        '#' => Terrain::Forest,
-                        '^' => Terrain::Slope(Direction::Up),
-                        'v' => Terrain::Slope(Direction::Down),
-                        '<' => Terrain::Slope(Direction::Left),
-                        '>' => Terrain::Slope(Direction::Right),
-                        _ => panic!("Invalid terrain type: {}", c),
-                    },
+                l.chars().map(|c| match c {
+                    '#' => Terrain::Forest,
+                    '.' | '^' | 'v' | '<' | '>' => Terrain::Path,
+                    _ => panic!("Invalid terrain type: {}", c),
                 })
             })
             .collect();
         Maze {
             tiles,
             bounds,
-            end_tile,
+            start,
+            end,
         }
     }
 
-    fn get_tile(&self, row: usize, column: usize) -> Option<&Tile> {
-        self.tiles.get(row * self.bounds.column + column)
+    fn get_tile(&self, pos: &Position) -> Option<&Terrain> {
+        self.tiles.get(pos.row * self.bounds.column + pos.column)
     }
 
-    fn get_mut_tile(&mut self, row: usize, column: usize) -> Option<&mut Tile> {
-        self.tiles.get_mut(row * self.bounds.column + column)
+    fn is_path(&self, pos: &Position) -> bool {
+        matches!(self.get_tile(pos), Some(Terrain::Path))
+    }
+
+    fn neighbors(&self, pos: &Position) -> Vec<Position> {
+        ALL_DIRECTIONS
+            .iter()
+            .filter_map(|d| {
+                let next = d.travel_with_bounds(pos, &self.bounds)?;
+                if self.is_path(&next) {
+                    Some(next)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    fn junctions(&self) -> Vec<Position> {
+        let mut junctions = vec![self.start.clone(), self.end.clone()];
+        for row in 0..self.bounds.row {
+            for column in 0..self.bounds.column {
+                let pos = Position { row, column };
+                if !self.is_path(&pos) {
+                    continue;
+                }
+                if pos == self.start || pos == self.end {
+                    continue;
+                }
+                if self.neighbors(&pos).len() > 2 {
+                    junctions.push(pos);
+                }
+            }
+        }
+        junctions
+    }
+
+    fn build_graph(&self) -> (Vec<Position>, Vec<Vec<(usize, u64)>>) {
+        let junctions = self.junctions();
+        let index: HashMap<Position, usize> = junctions
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(i, p)| (p, i))
+            .collect();
+
+        let mut edges: Vec<Vec<(usize, u64)>> = vec![Vec::new(); junctions.len()];
+
+        for (from_idx, from) in junctions.iter().enumerate() {
+            for first_step in self.neighbors(from) {
+                let mut prev = from.clone();
+                let mut curr = first_step;
+                let mut dist = 1u64;
+
+                loop {
+                    if let Some(&to_idx) = index.get(&curr) {
+                        edges[from_idx].push((to_idx, dist));
+                        break;
+                    }
+
+                    let nexts: Vec<Position> = self
+                        .neighbors(&curr)
+                        .into_iter()
+                        .filter(|n| *n != prev)
+                        .collect();
+
+                    if nexts.len() != 1 {
+                        break;
+                    }
+
+                    prev = curr;
+                    curr = nexts.into_iter().next().unwrap();
+                    dist += 1;
+                }
+            }
+        }
+
+        (junctions, edges)
     }
 }
 
-fn find_longest_path(pos: Position, maze: &mut Maze) -> Option<u64> {
-    if pos == maze.end_tile {
+fn find_longest_path(
+    node: usize,
+    end: usize,
+    edges: &[Vec<(usize, u64)>],
+    visited: &mut [bool],
+) -> Option<u64> {
+    if node == end {
         return Some(0);
     }
 
-    let tile = maze.get_mut_tile(pos.row, pos.column).unwrap();
-    if tile.is_visited || tile.terrain == Terrain::Forest {
-        return None;
-    }
-
-    tile.is_visited = true;
+    visited[node] = true;
     let mut longest = None;
 
-    for d in ALL_DIRECTIONS {
-        let next_pos = d.travel_with_bounds(&pos, &maze.bounds);
-        if next_pos.is_some() {
-            let next_path = find_longest_path(next_pos.unwrap(), maze);
-            longest = match longest {
-                Some(current) => match next_path {
-                    Some(next_len) => Some(max(current, next_len)),
-                    None => longest,
-                },
-                None => next_path,
-            }
-        };
+    for &(next, dist) in &edges[node] {
+        if visited[next] {
+            continue;
+        }
+        if let Some(rest) = find_longest_path(next, end, edges, visited) {
+            let total = rest + dist;
+            longest = Some(match longest {
+                Some(current) => max(current, total),
+                None => total,
+            });
+        }
     }
 
-    let tile = maze.get_mut_tile(pos.row, pos.column).unwrap();
-    tile.is_visited = false;
-
-    match longest {
-        Some(len) => Some(len + 1),
-        None => None,
-    }
+    visited[node] = false;
+    longest
 }
 
 #[wasm_bindgen]
@@ -115,9 +175,15 @@ pub fn solve(input: &str) -> String {
 }
 
 fn result(input: &str) -> u64 {
-    let mut maze = Maze::new(input);
-    let start = Position { row: 0, column: 1 };
-    return find_longest_path(start, &mut maze).expect("the end cannot be reached");
+    let maze = Maze::new(input);
+    let (junctions, edges) = maze.build_graph();
+    let start_idx = 0;
+    let end_idx = junctions
+        .iter()
+        .position(|p| *p == maze.end)
+        .expect("end junction missing");
+    let mut visited = vec![false; junctions.len()];
+    find_longest_path(start_idx, end_idx, &edges, &mut visited).expect("the end cannot be reached")
 }
 
 #[cfg(test)]
@@ -128,20 +194,5 @@ mod tests {
     fn it_solves_the_example() {
         let input = std::fs::read_to_string("../test_input.txt").unwrap();
         assert_eq!(result(&input), 154);
-    }
-
-    #[test]
-    fn it_gets_maze_tiles() {
-        let maze = Maze::new("#.\n<>");
-        assert_eq!(maze.get_tile(0, 0).unwrap().terrain, Terrain::Forest);
-        assert_eq!(maze.get_tile(0, 1).unwrap().terrain, Terrain::Path);
-        assert_eq!(
-            maze.get_tile(1, 0).unwrap().terrain,
-            Terrain::Slope(Direction::Left)
-        );
-        assert_eq!(
-            maze.get_tile(1, 1).unwrap().terrain,
-            Terrain::Slope(Direction::Right)
-        );
     }
 }
