@@ -138,7 +138,7 @@ fn read_grid(input: &str) -> Vec<Vec<char>> {
 pub fn solve(input: &str) -> String {
     let grid = read_grid(&input);
     let word_count = count_words(&grid);
-    format!("There are {} occurances of XMAS", word_count)
+    format!("There are {} occurrences of XMAS", word_count)
 }
 
 #[cfg(test)]
@@ -172,7 +172,7 @@ mod tests {
     fn it_solves_the_example() {
         let input = read_test_input();
         let actual_solution = solve(&input);
-        let expected_solution = "There are 18 occurances of XMAS";
+        let expected_solution = "There are 18 occurrences of XMAS";
         assert_eq!(actual_solution, expected_solution);
     }
 }

@@ -287,7 +287,7 @@ fn calculate_fence_cost(garden: &Garden) -> u64 {
 pub fn solve(input: &str) -> String {
     let garden = read_garden(&input);
     let fence_cost = calculate_fence_cost(&garden);
-    format!("The cost of fences is is: {}", fence_cost)
+    format!("The cost of fences is: {}", fence_cost)
 }
 
 #[cfg(test)]
@@ -298,7 +298,7 @@ mod tests {
     fn it_solves_the_example() {
         let input = std::fs::read_to_string("../test_input.txt").unwrap();
         let actual_solution = solve(&input);
-        let expected_solution = "The cost of fences is is: 1206";
+        let expected_solution = "The cost of fences is: 1206";
         assert_eq!(actual_solution, expected_solution);
     }
 }

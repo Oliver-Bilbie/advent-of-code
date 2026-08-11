@@ -202,4 +202,4 @@ def result(input_file: str, face_size: int) -> int:
 
 
 def solve(input_file: str) -> str:
-    return f"The final final password is: {result(input_file, 50)}"
+    return f"The final password is: {result(input_file, 50)}"

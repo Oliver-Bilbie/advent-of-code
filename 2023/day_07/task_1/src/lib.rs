@@ -170,7 +170,7 @@ impl Hand {
 #[wasm_bindgen]
 pub fn solve(input: &str) -> String {
     let mut hands: Vec<Hand> = Vec::new();
-    let mut total_wininings: u64 = 0;
+    let mut total_winnings: u64 = 0;
 
     for line_content in input.lines() {
         let content = line_content;
@@ -181,8 +181,8 @@ pub fn solve(input: &str) -> String {
     hands.sort_by(|a, b| a.score.cmp(&b.score));
 
     for (index, hand) in hands.iter().enumerate() {
-        total_wininings += (hand.bid as u64) * (index as u64 + 1);
+        total_winnings += (hand.bid as u64) * (index as u64 + 1);
     }
 
-    format!("Total wininings: {}", total_wininings)
+    format!("Total winnings: {}", total_winnings)
 }

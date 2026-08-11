@@ -17,7 +17,7 @@ Python is an interpreted language, so cannot be directly compiled to WASM. [Pyod
 #### Input files
 
 The challenges depend on a specific puzzle input provided alongside each task.
-This repository expects these files to be available in the location `/year/day_n/input.txt` however the creator has asked that these files not be committed. As such you will need to provide your own puzzle inputs. For most solutions I have provided tests to solve the publicly available example input. You may run the tests for any challenge to see the code in action without providing your own puzzle input.
+This repository expects these files to be available in the location `/year/day_n/input.txt`; however, the creator has asked that these files not be committed. As such, you will need to provide your own puzzle inputs. For most solutions I have provided tests to solve the publicly available example input. You may run the tests for any challenge to see the code in action without providing your own puzzle input.
 
 #### Rust
 

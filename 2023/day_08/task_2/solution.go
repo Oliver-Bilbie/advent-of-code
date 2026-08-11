@@ -122,7 +122,7 @@ func Solve(input string) string {
 	var start_nodes = generate_start_nodes(nodes_map)
 	var cycle_data = generate_cycle_data(start_nodes, directions)
 
-	// We will now iterate over each "Z node" occurance in one of the paths
+	// We will now iterate over each "Z node" occurrence in one of the paths
 	// until all paths have reached a "Z node"
 	var number_of_steps = cycle_data[0].first_z_index
 	for all_paths_finished(cycle_data, number_of_steps) == false {
