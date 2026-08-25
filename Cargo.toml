@@ -9,6 +9,8 @@ resolver = "3"
 members = [
   "2021/day_06/task_1",
   "2021/day_06/task_2",
+  "2021/day_07/task_1",
+  "2021/day_07/task_2",
   "2023/day_07/task_1",
   "2023/day_07/task_2",
   "2023/day_09/task_1",
