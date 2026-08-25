@@ -52,3 +52,10 @@ cert_arn = "arn:aws:acm:us-east-1:012345678912:certificate/b2124057-6e1e-4221-a1
 ```
 
 and run the command `make` from the root directory.
+
+#### Requirements
+
+- Rust + wasm-pack
+- Go + TinyGo
+- Python3
+- Terraform
