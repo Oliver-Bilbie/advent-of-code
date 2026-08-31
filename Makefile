@@ -19,7 +19,7 @@ build:
 	@cargo run --manifest-path build_utils/Cargo.toml
 	@rm -rf build
 	@cp -a frontend build
-	@rm -r build/package.json build/package-lock.json build/node_modules
+	@rm -rf build/package.json build/package-lock.json build/node_modules
 
 minify:
 	find build -path "build/node_modules" -prune -o -type f -name "*.js" -exec sh -c '\

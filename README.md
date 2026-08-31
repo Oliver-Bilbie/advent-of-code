@@ -58,4 +58,5 @@ and run the command `make` from the root directory.
 - Rust + wasm-pack
 - Go + TinyGo
 - Python3
+- Mise
 - Terraform
