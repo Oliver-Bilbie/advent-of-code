@@ -1,58 +1,63 @@
 use crate::position::Position;
 
 pub struct Grid<T> {
-    data: Vec<Vec<T>>,
+    data: Vec<T>,
+    size: Position,
 }
 
 impl<T> Grid<T> {
     pub fn new(data: Vec<Vec<T>>) -> Self {
-        Grid { data }
+        let row = data.len();
+        let column = match data.first() {
+            Some(r) => r.len(),
+            None => 0,
+        };
+        Grid {
+            data: data.into_iter().flatten().collect(),
+            size: Position { row, column },
+        }
     }
 
-    pub fn from_str<F>(input: &str, mut mapper: F) -> Self
-    where
-        F: FnMut(char) -> T,
-    {
-        let data = input
-            .lines()
-            .map(|line| line.chars().map(&mut mapper).collect())
-            .collect();
-        Grid { data }
+    pub fn from_str(input: &str, mapper: fn(&str) -> Vec<T>) -> Self {
+        let row = input.lines().count();
+        let column = match input.lines().next() {
+            Some(r) => r.len(),
+            None => 0,
+        };
+        let data = input.lines().flat_map(|line| mapper(line)).collect();
+        Grid {
+            data,
+            size: Position { row, column },
+        }
     }
 
     pub fn get(&self, position: &Position<usize>) -> Option<&T> {
         self.data
-            .get(position.row)
-            .and_then(|row| row.get(position.column))
+            .get(self.size.column * position.row + position.column)
     }
 
     pub fn get_mut(&mut self, position: &Position<usize>) -> Option<&mut T> {
         self.data
-            .get_mut(position.row)
-            .and_then(|row| row.get_mut(position.column))
+            .get_mut(self.size.column * position.row + position.column)
     }
 
     pub fn set(&mut self, position: &Position<usize>, value: T) {
-        if let Some(row) = self.data.get_mut(position.row) {
-            if let Some(cell) = row.get_mut(position.column) {
-                *cell = value;
-            }
+        if let Some(v) = self.get_mut(position) {
+            *v = value;
         }
     }
 
-    pub fn dimensions(&self) -> Position {
-        let row = self.data.len();
-        let column = self.data.first().map_or(0, |row| row.len());
-        Position { row, column }
+    pub fn size(&self) -> &Position {
+        &self.size
     }
 
-    pub fn print<F>(&self, mut mapper: F)
-    where
-        F: FnMut(&T) -> char,
-    {
-        self.data.iter().for_each(|row| {
-            println!("{}", row.iter().map(&mut mapper).collect::<String>());
-        });
+    pub fn print(&self, mapper: fn(&T) -> String) {
+        for row in 0..self.size.row {
+            for column in 0..self.size.column {
+                print!("{}", mapper(self.get(&Position { row, column }).unwrap()));
+            }
+            println!();
+        }
     }
 }
 #[cfg(test)]
@@ -61,11 +66,12 @@ mod tests {
 
     #[test]
     fn test_grid_new_and_dimensions() {
-        let data = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
-        let grid = Grid::new(data.clone());
+        let input = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+        let expected = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let grid = Grid::new(input);
 
-        assert_eq!(grid.dimensions(), Position { row: 3, column: 3 });
-        assert_eq!(grid.data, data);
+        assert_eq!(*grid.size(), Position { row: 3, column: 3 });
+        assert_eq!(grid.data, expected);
     }
 
     #[test]
@@ -88,13 +94,12 @@ mod tests {
 123
 456
 789";
-        let grid = Grid::from_str(input, |c| c.to_digit(10).unwrap());
+        let grid = Grid::from_str(input, |s| {
+            s.chars().map(|c| c.to_digit(10).unwrap()).collect()
+        });
 
-        assert_eq!(grid.dimensions(), Position { row: 3, column: 3 });
-        assert_eq!(
-            grid.data,
-            vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9],]
-        );
+        assert_eq!(*grid.size(), Position { row: 3, column: 3 });
+        assert_eq!(grid.data, vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
     }
 
     #[test]
@@ -110,6 +115,6 @@ mod tests {
             42,
         );
         // Grid should remain unchanged
-        assert_eq!(grid.data, vec![vec![1, 2], vec![3, 4],]);
+        assert_eq!(grid.data, vec![1, 2, 3, 4]);
     }
 }
