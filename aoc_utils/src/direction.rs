@@ -3,6 +3,13 @@ use crate::traits::{Integer, One, Zero};
 use std::cmp::PartialOrd;
 use std::ops::{Add, Rem, Sub};
 
+pub const ALL_DIRECTIONS: [Direction; 4] = [
+    Direction::Up,
+    Direction::Right,
+    Direction::Down,
+    Direction::Left,
+];
+
 #[derive(PartialEq, Eq, Clone, Hash, Debug)]
 pub enum Direction {
     Up,
