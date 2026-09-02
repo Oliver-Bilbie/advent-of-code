@@ -47,8 +47,28 @@ impl<T> Grid<T> {
         }
     }
 
+    pub fn apply(&mut self, operation: fn(&T) -> T) {
+        self.data.iter_mut().for_each(|v| *v = operation(v));
+    }
+
+    pub fn position(&self, predicate: fn(&T) -> bool) -> Option<Position> {
+        match self.data.iter().position(predicate) {
+            Some(i) => Some(Position {
+                row: i / self.size.column,
+                column: i % self.size.column,
+            }),
+            None => None,
+        }
+    }
+
     pub fn size(&self) -> &Position {
         &self.size
+    }
+
+    pub fn positions(&self) -> Vec<Position> {
+        (0..self.size.row)
+            .flat_map(|row| (0..self.size.column).map(move |column| Position { row, column }))
+            .collect()
     }
 
     pub fn print(&self, mapper: fn(&T) -> String) {
