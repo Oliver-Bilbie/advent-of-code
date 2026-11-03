@@ -19,9 +19,9 @@ func (h *PairHeap) Pop() any {
 	return x
 }
 
-func sumSquares(pair Pair) int {
+func sumSquares(pair Pair) int64 {
 	dx := int64(pair.a.x) - int64(pair.b.x)
 	dy := int64(pair.a.y) - int64(pair.b.y)
 	dz := int64(pair.a.z) - int64(pair.b.z)
-	return int(dx*dx + dy*dy + dz*dz)
+	return dx*dx + dy*dy + dz*dz
 }
