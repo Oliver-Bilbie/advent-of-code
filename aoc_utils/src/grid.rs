@@ -1,5 +1,6 @@
 use crate::position::Position;
 
+#[derive(Clone)]
 pub struct Grid<T> {
     data: Vec<T>,
     size: Position,
@@ -29,6 +30,10 @@ impl<T> Grid<T> {
             data,
             size: Position { row, column },
         }
+    }
+
+    pub fn from_vec(data: Vec<T>, size: Position<usize>) -> Self {
+        Grid { data, size }
     }
 
     pub fn get(&self, position: &Position<usize>) -> Option<&T> {
@@ -78,8 +83,14 @@ impl<T> Grid<T> {
             }
             println!();
         }
+        println!();
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &T> {
+        self.data.iter()
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
